@@ -1,0 +1,3551 @@
+/**
+ * 
+ * This initializes the guide interface by calling the init method on the
+ * modules in the setupFunctions list
+ * 
+ * @author little9 (Jamie Little)
+ * 
+ */
+/* jslint browser: true */
+/* global $, jQuery, alert */
+
+function analytics() {
+
+	var myAnalytics = {
+
+		settings : {
+			statsDataUrl : './helpers/stats_data.php?short_form='
+
+		},
+		strings : {
+			
+		
+		},
+		bindUiActions : function() {
+		},
+		init : function() {
+			myAnalytics.displayAnalytics()
+		},
+		displayAnalytics : function() {
+
+			$('.tab-clicks').empty();
+
+			$.get(myAnalytics.settings.statsDataUrl
+					+ $('#shortform').data().shortform, function(data) {
+
+				if (data.total_views != null) {
+					console.log(data.total_views)
+					$('.no-analytics').hide();
+					$('.total-views-count').show();
+					$('.total-views-count').html(data.total_views);
+
+				}
+
+				if (data.tab_clicks != "") {
+					$('.tab-click-header').show();
+					for (key in data.tab_clicks) {
+
+						$('.tab-clicks').append(
+								'<li class="tab-click">' + key + ' : '
+										+ data.tab_clicks[key] + '</li>');
+					}
+
+				}
+
+			});
+
+		}
+	};
+
+	return myAnalytics;
+}
+/**
+* Asset manager flyout functionality
+* 
+* 
+* assetManager
+* 
+*  
+**/
+/*jslint browser: true*/
+/*global $*/
+
+
+ 
+ function assetManager() {
+ 
+ 	var myAssetManager = {
+ 	
+ 	settings : {
+ 	},
+ 	strings : {
+ 	},
+ 	bindUiActions : function() {
+ 	},
+ 	init : function() {
+ 		myAssetManager.activateDropZone();
+ 	},
+ 	activateDropZone : function() {
+ 		/*
+ 		Dropzone.options.imagezone = {
+ 				  init: function() {
+ 				    this.on("success", function(file) { $('.dz-success-mark').show(); });
+ 				    this.on("error", function(file) { $('.dz-error-mark').show(); });
+ 				    
+ 				  }
+ 				};
+ 				*/
+ 	}
+ };
+ 
+ 	return myAssetManager;
+ }
+
+
+
+/**
+ * colorbox
+ * This sets up a list of elements that will be viewed with a colorbox.
+ * 
+ */ 
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+ function colorBox() {
+	"use strict";
+
+ 	var myColorBox = {
+ 	
+ 	settings : {
+ 		colorBoxes : ['.showmeta','.showrecord','.arrange_records']
+ 	},
+ 	strings : {
+ 	},
+ 	bindUiActions : function() {
+ 	},
+ 	init : function() {
+ 	myColorBox.setupAllColorboxes();
+ 	}, 
+ 	setupAllColorboxes : function()
+ 	{
+ 		for (var key in myColorBox.settings.colorBoxes) {
+ 		    var colorBox = myColorBox.settings.colorBoxes[key];
+ 		        $(colorBox).colorbox({
+ 		            iframe: true,
+ 		            innerWidth: 960,
+ 		            innerHeight: 600,
+ 		            fastIframe: true,
+ 		        });
+ 		
+ 		} 
+ 	}
+ };
+ 
+ 	return myColorBox;
+ }
+
+/**
+ * Sets up the clone and copy buttons used in the flyout.
+ *  
+ * 
+ * @author little9 (Jamie Little)
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function copyClone() {
+	"use strict";
+
+	var myCopyClone = {
+
+		settings : {
+			cloneButton : '.clone-button',
+			copyButton : '.copy-button',
+			cloneFavoriteButton : '.clone-favorite',
+			copyFavoriteButton : '.copy-favorite',
+		
+		},
+		strings : {
+			noLinking : "I'm sorry, but you cannot link a linked box"
+		},
+		bindUiActions : function() {
+
+			var ps = pluslet();
+
+			$('body').on(
+					'click',
+					myCopyClone.settings.cloneButton,
+					function() {
+
+						var origin_id = $(this).parent().parent().parent()
+								.attr('data-pluslet-id');
+						var origin_title = $(this).parent().parent().find(
+								'.box-search-label').text();
+						var origin_type = $(this).parent().parent().parent().data().plusletType;
+
+						if (origin_type === 'Clone') {
+						alert(myCopyClone.strings.noLinking);	
+						
+						} else {
+						ps.dropPluslet('', 'Clone', origin_id, origin_title);
+						}
+					});
+
+			$('body').on(
+					'click',
+					myCopyClone.settings.copyButton,
+					function() {
+
+					    var origin_id = $(this).parent().parent().parent().data().plusletId;
+						var origin_title = $(this).parent().parent().parent()
+								.text().replace(" /Clone Copy/g", "");
+						var origin_type = $(this).parent().parent().parent().data().plusletType;
+
+						ps.dropPluslet(origin_id, origin_type, origin_title);
+
+					});
+
+			$('body').on(
+					'click',
+					myCopyClone.settings.cloneFavoriteButton,
+					function() {
+
+						var origin_id = $(this).parent().siblings('.fav-box-item').find('a').attr('data-pluslet-id');
+						var origin_title = $(this).parent().siblings('.fav-box-item').find('a').text();
+
+						ps.dropPluslet('', 'Clone', origin_id, origin_title);
+
+					});
+
+			$('body').on(
+					'click',
+					myCopyClone.settings.copyFavoriteButton,
+					function() {
+
+						var origin_id = $(this).parent().siblings('.fav-box-item').find('a').attr('data-pluslet-id');
+						var origin_title = $(this).parent().siblings('.fav-box-item').find('a').text();
+						var origin_type = $(this).parent().siblings('.fav-box-item').find('a').attr('data-pluslet-type');
+
+						ps.dropPluslet(origin_id, origin_type, origin_title);
+
+					});
+
+		},
+		init : function() {
+		    myCopyClone.bindUiActions();
+		    myCopyClone.markAsLinked();
+		},
+		markAsLinked: function () {
+		    /**
+             * Created by cbrownroberts on 8/28/15.
+             */
+		    //identify pluslets marked as linked aka cloned and addClass linked_pluslet
+		    var linkedBoxes = $('div.pluslet[name=\'Clone\']');
+		    linkedBoxes.each(function () {
+		        $(this).children('.titlebar').children('.titlebar_text').addClass('linked_pluslet');
+		    });
+
+		}
+	};
+
+	return myCopyClone;
+}
+/**
+ * Sets up drag & drop features across the guide interface.
+ *
+ * @constructor Tabs
+ * @author little9 (Jamie Little)
+ *
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function drag() {
+    "use strict";
+
+    var myDrag = {
+        init: function () {
+
+
+            myDrag.makeDropable(".dropspotty");
+            myDrag.makeDropable(".cke");
+            myDrag.makeSortable(".sort-column");
+            myDrag.makeSortable('.sptab','sections');
+            myDrag.makeDraggable(".draggable");
+
+            $(".box-item").mousedown(function () {
+                myDrag.makeDropable(".dropspotty");
+                myDrag.makeDropable(".cke");
+                myDrag.makeSortable(".sort-column");
+                myDrag.makeSortable('.sptab','sections');
+                myDrag.makeDraggable(".draggable");
+
+
+                $(".box-item").on('drag', function () {
+                    //$('#box_options').hide();
+                });
+
+                $(".draggable").draggable({
+                    helper: 'clone', // Use a cloned helper
+                    appendTo: 'body', // Append helper to body so you can hide the parent
+                    start: function () {
+                        // Make the original transparent to avoid re-flowing of the elements
+                        // This makes the illusion of dragging the original item
+                        $(this).css({opacity: 0});
+                    },
+                    stop: function () {
+                        // Show original after dragging stops
+                        $(this).css({opacity: 1});
+
+                    }
+                });
+
+
+            });
+
+        },
+        makeDraggable: function (lstrSelector) {
+            ////////////////////////////////
+            // SET UP DRAGGABLE
+            // --makes anyting with class of "draggable" draggable
+            ////////////////////////////////
+
+            var draggable_element = $(lstrSelector);
+
+            draggable_element.draggable({
+                ghosting: true,
+                opacity: 0.5,
+                revert: true,
+                fx: 300,
+                cursor: 'pointer',
+                helper: 'clone',
+                zIndex: 350
+            });
+
+        },
+
+        makeDropable: function (lstrSelector) {
+            // SET UP DROP SPOTS
+            // --makes divs with class of "dropspotty" droppables
+            // accepts things with class of "draggable"
+            //
+            ////////////////////////////////
+
+            var dropspot = $(lstrSelector);
+            var drop_id;
+            var drag_id;
+            var drop_tab;
+            var pluslet_title;
+            var subject_id = $('#guide-parent-wrap').data().subjectId;
+
+            dropspot.droppable({
+
+                iframeFix: true,
+                accept: ".draggable, .pluslet",
+                drop: function (event, props) {
+
+                    $(this).removeClass("drop_hover");
+                    $(this).css("background", "");
+
+                    //do if droppable tab
+                    if ($(this).children('a[href^="#tabs-"]').length > 0) {
+                        if ($(props.draggable).hasClass('pluslet')) {
+                            if (!$(this).hasClass('ui-state-active')) {
+                                drop_tab = this;
+
+                                //make sure to show all of pluslet before hiding
+                                $(props.draggable).children('.pluslet_body').show();
+                                $(props.draggable).children().children('.titlebar_text').show();
+                                $(props.draggable).children().children('.titlebar_options').show();
+
+
+                                $(props.draggable).hide('slow', function () {
+                                    $(this).remove();
+                                    $(drop_tab).children('a[href^="#tabs-"]').click();
+                                    $('.portal-column-1:visible').first().prepend(this);
+
+                                    $(this).height("auto");
+                                    $(this).width("auto");
+                                    $(this).show("slow");
+
+                                    $("#response").hide();
+                                    //Make save button appear, since there has been a change to the page
+                                    $("#save_guide").fadeIn();
+                                });
+                            }
+                        }
+
+                        return;
+                    }
+
+                    //only do for class draggable
+                    if ($(props.draggable).hasClass('draggable')) {
+
+                        drop_id = $(this).attr("id");
+                        drag_id = $(props.draggable).attr("id");
+
+                        pluslet_title = $(props.draggable).html();
+                        if ($(this).hasClass('cke')) {
+                            if ($(props.draggable).attr("ckclass") !== "") {
+                                CKEDITOR.instances[$(this).attr('id').replace('cke_', '')].openDialog($(props.draggable).attr("ckclass") + 'Dialog');
+                            } else {
+                                alert('This pluslet isn\'t configured to drag into CKEditor!');
+                            }
+                        } else {
+                            // if there can only be one, could remove from list items
+                            drop_id = $(this).attr("id");
+                            drag_id = $(props.draggable).attr("id");
+
+                            pluslet_title = $(props.draggable).html();
+
+                            // Create new node below, using a random number
+
+                            var randomnumber = Math.floor(Math.random() * 1000001);
+                            $(this).next('div').prepend("<div class=\"dropspotty\" id=\"new-" + randomnumber + "\"></div>");
+
+
+                            // Load new data, on success (or failure!) change class of container to "pluslet", and thus draggable in theory
+                            $("#new-" + randomnumber).fadeIn("slow").load("helpers/guide_data.php", {
+                                    from: drag_id,
+                                    to: drop_id,
+                                    pluslet_title: pluslet_title,
+                                    flag: 'drop',
+                                    this_subject_id: subject_id
+                                },
+                                function () {
+
+                                    // 1.  remove the wrapper
+                                    // 2. put the contents of the div into a variable
+                                    // 3.  replace parent div (i.e., id="new-xxxxxx") with the content made by loaded file
+                                    var cnt = $("#new-" + randomnumber).contents();
+                                    $("#new-" + randomnumber).replaceWith(cnt);
+
+                                    $(this).addClass("unsortable");
+
+                                    $("#response").hide();
+                                    //Make save button appear, since there has been a change to the page
+                                    $("#save_guide").fadeIn();
+
+
+                                    $("a[class*=showmedium]").colorbox({
+                                        iframe: true,
+                                        innerWidth: "90%",
+                                        innerHeight: "80%",
+                                        maxWidth: "1100px",
+                                        maxHeight: "800px"
+                                    });
+
+                                    var h = help();
+                                    h.makeHelpable("img[class*=help-]");
+
+                                    //Close main flyout when a pluslet is dropped
+                                    $('#main-options').slideReveal("hide");
+
+                                });
+                        }
+                    }
+                },
+                over: function (event, ui) {
+                    if ($(this).children('a[href^="#tabs-"]').length > 0 && $(ui.draggable).hasClass('pluslet')
+                        && !$(this).hasClass('ui-state-active')) {
+                        $(this).css("background", "none repeat scroll 0% 0% #C03957");
+                    }
+
+                    if ($(this).children('a[href^="#tabs-"]').length < 1 && !$(ui.draggable).hasClass('pluslet')) {
+                        $(this).addClass("drop_hover");
+                    }
+                },
+                out: function (event, ui) {
+                    if ($(this).children('a[href^="#tabs-"]').length > 0 && $(ui.draggable).hasClass('pluslet')) {
+                        $(this).css("background", "");
+                    }
+
+                    if ($(this).children('a[href^="#tabs-"]').length < 1 && !$(ui.draggable).hasClass('pluslet')) {
+                        $(this).removeClass("drop_hover");
+                    }
+                }
+            });
+        },
+        makeSortable: function (lstrSelector, lstrType) {
+////////////////////////////
+// MAKE COLUMNS SORTABLE
+// Make "Save Changes" button appear on sorting
+////////////////////////////
+            var sortable_element = $(lstrSelector);
+
+            if (lstrType === 'sections') {
+                sortable_element.sortable({
+                    opacity: 0.7,
+                    cancel: '.unsortable',
+                    handle: '.section_sort',
+                    update: function (event, ui) {
+                        $("#response").hide();
+                        $("#save_guide").fadeIn();
+
+                    },
+                    start: function (event, ui) {
+                        $(ui.item).find('.dropspotty').hide();
+                        $(ui.item).find('.pluslet').hide();
+                        $(ui.item).height('2em');
+                        $(ui.item).width('auto');
+                    },
+                    stop: function (event, ui) {
+                        $(ui.item).find('.dropspotty').show();
+                        $(ui.item).find('.pluslet').show();
+                    }
+                });
+            } else {
+                sortable_element.sortable({
+
+                    connectWith: ['.portal-column-0', '.portal-column-1',
+                        '.portal-column-2'],
+                    opacity: 0.7,
+                    tolerance: 'pointer',
+                    cancel: '.unsortable',
+                    handle: 'div.pluslet_sort',
+                    update: function (event, ui) {
+                        $("#response").hide();
+                        $("#save_guide").fadeIn();
+
+                    },
+                    start: function (event, ui) {
+                        $(ui.item).children('.pluslet_body').hide();
+                        $(ui.item).children().children('.titlebar_text').show();
+                        $(ui.item).children().children('.titlebar_options').hide();
+                        $(ui.item).height('2em');
+                        $(ui.item).width('90%');
+                    },
+                    stop: function (event, ui) {
+
+                        if ($('div').hasClass('pluslet_body_closed')) {
+                            $(ui.item).children('.pluslet_body').hide();
+                        } else {
+                            $(ui.item).children('.pluslet_body').show();
+                        }
+                        $(ui.item).children().children('.titlebar_text').show();
+                        $(ui.item).children().children('.titlebar_options').show();
+
+                    }
+                });
+            }
+        }
+    }
+
+
+    return myDrag;
+}
+
+/**
+* Setup for the favorite box that appears on the inital flyout.
+* 
+* 
+* favoriteBox
+* 
+*  
+**/
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function favoriteBox() {
+
+    var myFavoriteBox = {
+
+        settings: {
+            favoritesUrl: "helpers/favorite_pluslets_data.php?staff_id=",
+            favoriteBoxList: $(".fav-boxes-list")
+        },
+        strings: {
+            copyButton: "<span class='pure-u-2-5' style='text-align:right;'><button class='copy-favorite favorite-button pure-button pure-button-secondary'>Copy</button></span></div></li>",
+            copyCloneButtons: "<span class='pure-u-2-5' style='text-align:right;'><button class='clone-favorite favorite-button pure-button pure-button-secondary'>Link</button>&nbsp;<button class='copy-favorite favorite-button pure-button pure-button-secondary'>Copy</button></span></div></li>",
+            noFavoritesText: "<li>No boxes have been marked as a favorite. To do so, click the gears button on the box you wish to mark as a Favorite and activate the Favorite toggle switch.</li>"
+        },
+        bindUiActions: function () {
+        },
+        init: function () {
+      	  document.addEventListener("DOMContentLoaded", function(event) {
+
+            myFavoriteBox.getUserFavoriteBoxes();
+            
+      	  });
+            myFavoriteBox.markAsFavorite();
+        },
+        getUserFavoriteBoxes: function () {
+
+            var g = guide();
+            var staffId = g.getStaffId();
+
+            myFavoriteBox.settings.favoriteBoxList.empty();
+            $.ajax({
+                url: myFavoriteBox.settings.favoritesUrl + staffId,
+                type: "GET",
+                dataType: "json",
+                data: { staff_id: staffId },
+                success: function (data) {
+
+                    if (!data.length) {
+                        myFavoriteBox.settings.favoriteBoxList.append(myFavoriteBox.strings.noFavoritesText);
+                    }
+
+                    $.each(data, function (idx, obj) {
+
+                        if(obj.type == 'Clone') {
+                            myFavoriteBox.settings.favoriteBoxList.append("<li data-pluslet-id='" + obj.id + "' data-pluslet-type='" + obj.type + "'>" +
+                                "<div class='pure-g'><div class='pure-u-3-5 fav-box-item' title='" + obj.title + "'>" +
+                                "<a href='#box-" + obj.id + "'" +
+                                "data-tab='" + obj.tab_index + "'" +
+                                "data-pluslet-id='" + obj.id + "'" +
+                                "data-pluslet-type='" + obj.type + "'" +
+                                "id='boxid-" + obj.tab_index + "-" + obj.id + "'>" + obj.title + "</a></div>" + myFavoriteBox.strings.copyButton);
+                        } else {
+                            myFavoriteBox.settings.favoriteBoxList.append("<li data-pluslet-id='" + obj.id + "' data-pluslet-type='" + obj.type + "'>" +
+                                "<div class='pure-g'><div class='pure-u-3-5 fav-box-item' title='" + obj.title + "'>" +
+                                "<a href='#box-" + obj.id + "'" +
+                                "data-tab='" + obj.tab_index + "'" +
+                                "data-pluslet-id='" + obj.id + "'" +
+                                "data-pluslet-type='" + obj.type + "'" +
+                                "id='boxid-" + obj.tab_index + "-" + obj.id + "'>" + obj.title + "</a></div>" + myFavoriteBox.strings.copyCloneButtons);
+                        }
+
+
+
+                    });
+                }
+            });
+
+        },
+        markAsFavorite: function () {
+
+            /**
+             * Created by cbrownroberts on 8/28/15.
+             */
+
+            //identify pluslets marked as favorites and addClass favorite_pluslet
+            var $favBoxes = $('input.favorite_pluslet_input:checked')
+
+            $favBoxes.each(function () {
+                $(this).parent().parent().parent().parent().find('.titlebar_text').addClass('favorite_pluslet');
+
+            });
+
+        }
+    };
+
+    return myFavoriteBox;
+}
+
+/**
+ * Object that encompasses the functionality of the find box search
+ * in the 'Find Boxes' flyout.
+ * 
+ * findBoxSearch
+ * @author little9 (Jamie Little)
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function findBoxSearch() {
+	var myFindBoxSearch = {
+
+		/**
+		 * This contains configuration details like URLs and sets up any jQuery
+		 * selectors that will be used in the object. *
+		 */
+		settings: {
+			findBoxSearchBox: $('.findbox-search'),
+			findBoxSearchResults: $('.findbox-searchresults'),
+			autoCompleteUrl: '../includes/autocomplete_data.php?collection=pluslet&term=',
+			closeButton : $(".close-settings"),
+			allGuidesAutoCompleteUrl : "../includes/autocomplete_data.php?collection=all_guides&term="
+		},
+
+		/**
+		 * This contains any long strings that need to be used in the object or
+		 * bits of HTML markup. *
+		 */
+		strings: {
+
+			noSearchResults: "<li><span class=\"no-box-results\">No Results</span></li>",
+			findBoxSearchButtons: "<div class=\"pure-u-2-5\" style=\"text-align:right;\">"
+			+ "<button class=\"clone-button pure-button pure-button-secondary\">Link</button>&nbsp; "
+			+ "<button class=\"copy-button pure-button pure-button-secondary\">Copy</button></div></div></li>"
+
+		},
+
+		/**
+		 * This function does inital setup for the object. It should call the
+		 * bindUiActions functions
+		 */
+		init: function () {
+
+			this.bindUiActions();
+
+		},
+
+		/**
+		 * @member FindBoxSearch Used to bind the object's UI actions. Like
+		 *         'click' or 'hover'.
+		 */
+		bindUiActions: function () {
+
+			this.activateFindBoxSearch();
+			this.loadCloneMenu();
+		},
+
+		/**
+		 * @member {Object} This function posts a string to the Autocomplete
+		 *         class and returns results or indicates that no results were
+		 *         found.
+		 */
+		search: function (search_term) {
+			$.get(
+					myFindBoxSearch.settings.autoCompleteUrl
+					+ search_term,
+					function (data) {
+
+
+						if (data.length != 0) {
+
+							for (var i = 0; i < data.length; i++) {
+
+								if (data[i]['content_type'] == "Pluslet") {
+
+								    var listItem = "<li data-pluslet-type='" +data[i].type + "' data-pluslet-id='"
+										+ data[i].id
+										+ "' class=\"pluslet-listing\">"
+										+ "<div class=\"pure-g\">"
+										+ "<div class=\"pure-u-3-5 box-search-label\" title=\""
+										+ data[i].label
+										+ "\">"
+										+ data[i].label
+										+ "</div>" + myFindBoxSearch.strings.findBoxSearchButtons;
+									
+										myFindBoxSearch.settings.findBoxSearchResults.append(listItem);
+										console.log();
+
+								    
+								}
+
+							}
+						} else {
+							myFindBoxSearch.settings.findBoxSearchResults
+								.html("<li><span class=\"no-box-results\">No Results</span></li>");
+						}
+					});
+
+		},
+
+		/** @member {Object} A function to bind the keyup event to the searchbox. * */
+		activateFindBoxSearch: function () {
+
+			myFindBoxSearch.settings.findBoxSearchBox
+				.keyup(function (data) {
+					myFindBoxSearch.settings.findBoxSearchResults.empty();
+					var search_term = myFindBoxSearch.settings.findBoxSearchBox
+						.val();
+					myFindBoxSearch.search(search_term);
+
+				});
+		},
+		activateBoxSettingsCloseButton: function () {
+			//close box settings panel
+			myFindBoxSearch.settings.closeButton.click(function () {
+				$(this).parent(".box_settings").hide();
+			});
+		}, loadCloneMenu : function() {
+			
+			$.get(myFindBoxSearch.settings.allGuidesAutoCompleteUrl, function(data) { 
+
+				for(var i = 0; i<data.length;i++) {
+			        var subject_id = data[i].id;
+					$('.guide-list').append("<option data-subject-id='" + subject_id + "' class=\"guide-listing\">" + data[i].label + "</li>");
+
+				}
+
+			});
+
+			$('.guide-list').on('change', function(data) {
+				var subject_id = $("option:selected", this).attr('data-subject-id');
+
+				$('.pluslet-list').empty();
+
+				$.get("../includes/autocomplete_data.php?collection=guide&subject_id=" + subject_id + " &term="
+						,function(data) {
+
+						for(var i = 0; i<data.length;i++) {
+							$('.pluslet-list').append("<li data-pluslet-type='" +data[i].type + "' data-pluslet-id='" + data[i].id + "' class=\"pluslet-listing\"><div class=\"pure-g\"><div class=\"pure-u-3-5 box-search-label\" title=\""+ data[i].label + "\">"  + data[i].label + "</div><div class=\"pure-u-2-5\" style=\"text-align:right;\"><button class=\"clone-button pure-button pure-button-secondary\">Link</button>&nbsp;<button class=\"copy-button pure-button pure-button-secondary\">Copy</button></div></div></li>");
+				
+						}
+				});	
+				
+			});
+		}
+
+		
+
+	};
+
+
+
+	return myFindBoxSearch;
+
+};
+
+/**
+ * Object that sets up the behaviour of the flyout menu.
+ * 
+ * 
+ * @author little9 (Jamie Little)
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function flyout() {
+	"use strict";
+
+	var myFlyout = {
+		settings : {
+			mainOptions : $('#main-options'),
+			triggerMainOptions : $('.trigger-main-options'),
+			triggerPointer : $('#trigger-pointer'),
+			mainOptionsClose : $('#main-options-close')
+		},
+		strings : {
+
+		},
+
+		activateFlyoutButton : function(FlyoutButton, FlyoutPanel) {
+			$(FlyoutButton).click(function() {
+				myFlyout.selectedPanelDisplay();
+				$(FlyoutPanel).show();
+				$(FlyoutButton).addClass('active-item');
+			});
+		},
+		flyOutPanels : {
+			// The key in this object is the selector for the button on the flyout
+		    // the value is the actual flyout content. 
+			// If you add another button and flyout content to the page, add them to 
+			// this object to activate them 
+			
+			'#show_box_options' : '#box_options_content',
+			'#show_findbox_options' : '#findbox_options_content',
+			'#show_layout_options' : '#layout_options_content',
+			'#show_dblist_options' : '#dblist_options_content',
+			'#show_analytics_options' : '#analytics_options_content',
+			'#show_my_guides' : '#my_guides_content',
+			'#show_image_gallery' : '#image_gallery',
+			'#show_tabs' : '#tabs_options'
+		},
+		bindUiActions : function() {
+			// Show/Hide 'Find in Guide' form
+
+			for (var flyoutButton in myFlyout.flyOutPanels) {
+				{
+					myFlyout.activateFlyoutButton(flyoutButton,
+							myFlyout.flyOutPanels[flyoutButton]);
+				}
+
+			}
+		},
+		init : function() {
+
+			//Top level Panel Open by default
+
+			myFlyout.mainSlider();
+			myFlyout.bindUiActions()
+			myFlyout.setScrollBar();
+		},
+		mainSlider : function() {
+			var s = myFlyout.settings;
+
+			var mainslider = s.mainOptions.slideReveal({
+				trigger : s.triggerMainOptions,
+				push : false,
+				width : 440,
+				shown : function(slider, trigger) {
+					 $('#trigger-pointer').addClass('fa-chevron-left');
+					 $('#trigger-pointer').removeClass('fa-chevron-right');
+				},
+				hidden : function(slider, trigger) {
+					 $('#trigger-pointer').addClass('fa-chevron-right');
+					 $('#trigger-pointer').removeClass('fa-chevron-left');
+				}
+			});
+
+			s.mainOptionsClose.click(function() {
+				mainslider.slideReveal('hide');
+			});
+
+			//Top Level Panel Flyout 
+			window.onload = function() {
+				mainslider.slideReveal('show');
+			};
+
+		},
+		selectedPanelDisplay : function() {
+			// Select ONLY Active Panel for coresponding Top Level Item
+
+			$('.second-level-content').not(this).each(function() {
+				$(this).hide();
+			});
+			$('.top-panel-option-item').not(this).each(function() {
+				$(this).removeClass('active-item');
+			});
+
+		},
+		setScrollBar : function() {
+
+			$('.box_options_container, .fav-boxes-content, .db-list-results, .user_guides_display, .flyout-tabs').enscroll({
+			    verticalTrackClass: 'track',
+			    verticalHandleClass: 'handle',
+			    minScrollbarLength: 28
+			});
+
+
+			$('.find-box-tab-list-content .pluslet-list, .find-box-tab-list-content .findbox-searchresults, .databases-searchresults').enscroll({
+			    verticalTrackClass: 'track2',
+			    verticalHandleClass: 'handle2',
+			    minScrollbarLength: 28
+			});
+
+		}
+		
+
+	};
+
+	return myFlyout;
+};
+/**
+* Object to get details related to the current guide.
+* 
+*  
+**/
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function guide() {
+	"use strict";
+
+ 	var myGuide = {
+ 	
+ 	settings : {
+ 		guideData : $('#guide-parent-wrap').data()
+ 	},
+ 	strings : {
+ 	},
+ 	bindUiActions : function() {
+ 	},
+ 	init : function() {
+ 	},
+ 	getSubjectId : function () {
+		var subjectId = myGuide.settings.guideData.subjectId;
+		return subjectId;
+ 	},
+	getStaffId : function () {
+		var staffId = myGuide.settings.guideData.staffId;
+		return staffId;
+ 	}
+ 
+ };
+ 
+ 	return myGuide;
+ }
+/**
+* Autocomplete search triggered by the magnifying glass icon on the guide page. 
+* 
+* 
+* guideSearch
+* 
+*  
+**/
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+
+function guideSearch() {
+
+    var myGuideSearch = {
+
+        settings: {
+            subjectId: $('#guide-parent-wrap').data().subjectId,
+            autoCompleteUrl: "../includes/autocomplete_data.php?collection=guide&subject_id="
+        },
+        strings: {
+        },
+        bindUiActions: function () {
+            $("#find-trigger").click(function () {
+                $("#guide_search").toggle("fade", 700);
+            });
+
+        },
+        init: function () {
+            myGuideSearch.loadGuideSearch();
+            myGuideSearch.bindUiActions();
+        },
+        moveToHash: function () {
+
+            if (window.location.hash) {
+                console.log(window.location.hash);
+                setTimeout(function () {
+                    if (window.location.hash.split('-').length == 3) {
+                        var tab_id = window.location.hash.split('-')[1];
+                        var box_id = window.location.hash.split('-')[2];
+                        var selected_box = ".pluslet-" + box_id;
+
+                        myGuideSearch.settings.tabs('select', tab_id);
+
+                        $('html, body').animate({ scrollTop: jQuery('a[name="box-' + box_id + '"]').offset().top }, 'slow');
+
+                        $(selected_box).effect("pulsate", {
+                            times: 1
+                        }, 2000);
+                    }
+                }, 500);
+            }
+        },
+        getAutoCompleteSettings: function () {
+            var autoCompleteSettings = {
+                minLength: 3,
+                source: myGuideSearch.settings.autoCompleteUrl + myGuideSearch.settings.subjectId,
+                focus: function (event, ui) {
+
+                    event.preventDefault();
+                    jQuery(".find-guide-input").val(ui.item.label);
+                },
+                select: function (event, ui) {
+                    var tab_id = ui.item.hash.split('-')[1];
+                    var box_id = ui.item.hash.split('-')[2];
+                    var selected_box = ".pluslet-" + box_id;
+
+                    $('#tabs').tabs('select', tab_id);
+
+                    $(selected_box).effect("pulsate", {
+                        times: 1
+                    }, 2000);
+
+                    window.location.hash = 'box-' + box_id;
+                }
+            }
+            return autoCompleteSettings;
+        },
+        loadGuideSearch: function () {
+            $('.find-guide-input').autocomplete(myGuideSearch.getAutoCompleteSettings());
+        }
+
+    };
+
+    return myGuideSearch;
+}
+
+/**
+* 
+* This initializes the guide interface by calling the init method on the modules in the setupFunctions list
+*
+* @author little9 (Jamie Little)
+* 
+*/
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function guideSetup() {
+	"use strict";
+
+	var myGuideSetup = {
+			settings : {
+				
+			},
+			setupFunctions : [findBoxSearch, style, resourceList, 
+			                  flyout, tabs, pluslet, section, layout, drag, help, 
+			                  saveSetup, copyClone, colorBox, favoriteBox, guideSearch],
+			init : function() {
+				
+				for (var func in myGuideSetup.setupFunctions) {
+					
+					var setupFunc = myGuideSetup.setupFunctions[func]();
+					setupFunc.init();
+				}
+								
+
+
+			}	
+	}
+	return myGuideSetup;
+}	
+
+
+
+/**
+ * Activates the help buttons on pluslets
+ *  
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function help() {
+	"use strict";
+
+ 	var myHelp = {
+ 	
+ 	settings : {
+ 		popUrl : 'helpers/popup_help.php?type='
+ 	},
+ 	strings : {
+ 	},
+ 	bindUiActions : function() {
+ 	},
+ 	init : function() {
+ 		myHelp.makeHelpable('img[class*=help-]');
+ 	},
+
+
+ 	makeHelpable : function (lstrSelector) {
+         ////////////////
+ 		 // Help Buttons
+ 		 // unbind click events from class and redeclare click event
+ 		 ////////////////
+ 	$(lstrSelector).unbind('click');
+ 	$(lstrSelector).on('click', function() {
+ 		var help_type = $(this).attr('class').split('-');
+ 		myHelp.settings.popUrl = myHelp.settings.popUrl + help_type[1];
+
+ 		$(this).colorbox({
+ 			href : myHelp.settings.popUrl,
+ 			iframe : true,
+ 			innerWidth : '600px',
+ 			innerHeight : '60%',
+ 			maxWidth : '1100px',
+ 			maxHeight : '800px'
+ 		});
+ 	});
+ }
+
+ };
+ 
+ 	return myHelp;
+ }
+/**
+ * Provides the click events for the the layouts section in the flyout. 
+ *  
+ *
+ * @author little9 (Jamie Little)
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function layout() {
+	"use strict";
+
+	var myLayout = {
+		settings : {
+			singleColumnButton : $('#col-single'),
+			twoColumnButton : $('#col-double'),
+			fourEightColumnButton : $('#col-48'),
+			threeColumnButton : $('#col-triple'),
+			eightFourColumnButton : $('#col-84'),
+			bigMiddleThreeColumnButton : $('#col-363'),
+			sectionDataUrl : 'helpers/section_data.php'
+		},
+		strings : {
+
+		},
+		bindUiActions : function() {
+
+			myLayout.activateLayoutButtons();
+
+		},
+		init : function() {
+
+
+		
+			document.addEventListener("DOMContentLoaded", function() {
+				myLayout.initialLayout();
+				myLayout.selectedLayout();
+				myLayout.layoutSections();
+				myLayout.bindUiActions();
+				myLayout.activateLayoutButtons();
+				myLayout.highlightLayout($('.sp_section'));
+			});
+
+		},
+
+		initialLayout : function() {
+			/**
+			 * This appends an initial section when you are adding a new tab.
+			 */
+			if ($('[id^=section]').length == 0) {
+				$.ajax({
+					url : myLayout.settings.sectionDataUrl,
+					type : 'POST',
+					data : {
+						action : 'create'
+					},
+					dataType : 'html',
+					success : function(html) {
+						$('div#tabs-0').append(html);
+					}
+				});
+
+			}
+		},
+		moveColumnContent : function(moveColumns, sectionId) {
+			/**
+			 * 
+			 * This function takes content from one column and moves it to another. 
+			 * 
+			 */
+			for (var k in moveColumns) {
+				
+				var sourceColumn = moveColumns[k][0];
+				var targetColumn = moveColumns[k][1];
+				console.log(sourceColumn);
+				
+				var content = $('#section_' + sectionId + ' #container-' + sourceColumn + ' .portal-column').children();
+				console.log('#' + sectionId + ' #container-' + sourceColumn + ' .portal-column');
+				console.log('#' + sectionId + ' #container-' + targetColumn + ' .portal-column')
+				$('#section_' + sectionId + '  #container-' + targetColumn + ' .portal-column').append(content);
+				
+			}
+		
+			
+			
+
+
+		},
+
+		selectedLayout : function() {
+			$('.layout-icon').not(this).each(function() {
+				$(this).removeClass('active-layout-icon');
+			});
+		},
+		
+		layouts : {
+			/** 
+			 * This object stores the layouts as they stored in the database as keys,
+			 * the selectors for the buttons that are used to change the layout,
+			 * and the pure css classes that are appended to the columns. 
+			 */
+			
+			'0-12-0' : {
+				selector : '#col-single',
+				pureClasses : [ 'hidden-column', 'pure-u-1', 'hidden-column' ],
+				moveColumns : {firstToSecond : [0,1], thirdToSecond : [2,1]} 
+				
+			},
+			'6-6-0' : {
+				selector : '#col-double',
+				pureClasses : [ 'pure-u-1-2', 'pure-u-1-2', 'hidden-column' ],
+				moveColumns : {thirdToSecond : [2,1]}
+			},
+			'4-8-0' : {
+				selector : '#col-48',
+				pureClasses : [ 'pure-u-1-4', 'pure-u-3-4', 'hidden-column' ],
+				moveColumns : {thirdToSecond : [2,1]}
+			},
+			'8-4-0' : {
+				selector : '#col-84',
+				pureClasses : [ 'pure-u-3-4', 'pure-u-1-4', 'hidden-column' ],
+				moveColumns : {thirdToSecond : [2,1]}
+			},
+			'4-4-4' : {
+				selector : '#col-triple',
+				pureClasses : [ 'pure-u-1-3', 'pure-u-1-3', 'pure-u-1-3' ],
+				moveColumns : {}
+			},
+			'3-6-3' : {
+				selector : '#col-363',
+				pureClasses : [ 'pure-u-1-4', 'pure-u-1-2', 'pure-u-1-4' ],
+				moveColumns : {}
+			}
+		},
+		highlightLayout : function(sectionSelector) {
+			/**
+			 * This function highlights the icon for the currently selected layout 
+			 * 
+			 */
+			
+			if (typeof sectionSelector.data() != 'undefined' ) {
+				
+				var dataLayout = sectionSelector.first().attr('data-layout');
+			} else {
+				var dataLayout = '6-6-0';
+
+
+			}
+
+			console.log(dataLayout);
+
+			
+			for (var k in myLayout.layouts) {	
+				if (dataLayout === k) {
+					console.log("Adding active...");
+					$(myLayout.layouts[k].selector).addClass('active-layout-icon');
+				} else {
+					$(myLayout.layouts[k].selector).removeClass('active-layout-icon');
+
+				} 
+				
+			  
+			}
+			
+		},
+		layoutSection : function(sectionId, layout) {
+			/** 
+			 * This function lays out the columns in a section.  
+			 * It takes a section id and a layout (three digits seperated by a hyphen) that is used as a key for the 
+			 * layouts object. That object stores the pure classes that need to 
+			 * appended to change the layout. 
+			 * 
+			 */
+			var firstColumn = 'div#section_' + sectionId + ' div#container-0';
+			var secondColumn = 'div#section_' + sectionId + ' div#container-1';
+			var thirdColumn = 'div#section_' + sectionId + ' div#container-2';
+		
+			var section = 'div#section_' + sectionId;
+
+			for ( var k in myLayout.layouts) {
+				if (layout === k) {
+
+
+					$(firstColumn).attr('class', '');
+					$(secondColumn).attr('class', '');
+					$(thirdColumn).attr('class', '');
+
+					$(firstColumn).addClass(myLayout.layouts[k].pureClasses[0]);
+					$(secondColumn).addClass(myLayout.layouts[k].pureClasses[1]);
+					$(thirdColumn).addClass(myLayout.layouts[k].pureClasses[2]);
+
+					
+					myLayout.moveColumnContent(myLayout.layouts[k].moveColumns, sectionId);
+					
+					$(section).data('layout', k)
+
+				}
+			}
+		},
+		layoutSections : function() {
+
+			/**
+			 * This function goes through each of the sections in 
+			 * all of the tabs and applies the layoutSection function to them.
+			 * The layout key/id is persisted in the database and available 
+			 * from a data attribute.
+			 */
+			$('div[id^="section_"],div[id^="section_new"]').each(function() {
+				var sectionId = $(this).attr('id').split('section_')[1];
+				var layout = $('div#section_' + sectionId).data('layout');
+
+				myLayout.layoutSection(sectionId, layout);
+
+			});
+		},
+
+		
+		
+		
+		activateLayoutButtons : function() {
+			/**
+			 *  
+			 * This function goes through the layouts object and binds a click event to 
+			 * each of the button selectors. Each button is also given a data attribute 
+			 * with the layout selection that is passed to the layoutSection function and
+			 * added to the section as a data attribute that is persisted in the database
+			 */
+		
+			for ( var k in myLayout.layouts) {
+				var selector = myLayout.layouts[k].selector;
+				
+				$(selector).data('layout', k);
+
+
+				$(selector).on('click', function() {
+					var selectedSection = $('#layout_options_content').data().selectedSection;
+
+					$('.layout-icon').removeClass('active-layout-icon');
+					$(this).addClass('active-layout-icon');
+
+					myLayout.layoutSection(selectedSection,$(this).data().layout)
+				    $("#save_guide").fadeIn();
+			    });
+			}
+		}
+	}
+	return myLayout;
+};
+/**
+* Something something.
+* 
+* 
+*  
+**/
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+
+/*
+ 
+ 
+ function thing() {
+ 
+ 	var myThing = {
+ 	
+ 	settings : {
+ 	},
+ 	strings : {
+ 	},
+ 	bindUiActions : function() {
+ 	},
+ 	init : function() {
+ 	}
+ };
+ 
+ 	return myThing;
+ }
+
+*/
+
+
+
+/**
+ * Object that sets up the click events and options associated with pluslets.
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function pluslet() {
+	"use strict";
+
+	var myPluslet = {
+			settings : {
+				hideBodyContent : ['.pluslet.type-heading','.pluslet.type-worldcat' ,'.pluslet.type-catalog','.pluslet.type-relguide', '.pluslet.type-articleplus','.pluslet.type-toc','.pluslet.type-googlebooks','.pluslet.type-googlescholar','.pluslet.type-googlesearch','.pluslet.type-guideselect','.pluslet.type-newdbs','.pluslet.type-guidesearch','.pluslet.type-newguides','.pluslet.type-experts', '.pluslet.type-guidelist', '.pluslet.type-collectionlist', '.pluslet.type-card'],
+				hideLinksNewTab : ['.pluslet.type-heading','.pluslet.type-video','.pluslet.type-worldcat','.pluslet.type-catalog','.pluslet.type-relguide','.pluslet.type-articleplus','.pluslet.type-toc','.pluslet.type-googlebooks','.pluslet.type-googlescholar','.pluslet.type-googlesearch','.pluslet.type-guideselect','.pluslet.type-guidesearch', '.pluslet.type-experts', '.pluslet.type-collectionlist'],
+				hideTitleBar :    ['.pluslet.type-heading','.pluslet.type-toc', '.pluslet.type-card'],
+				hideMarkFavorite :['.pluslet.type-worldcat','.pluslet.type-catalog','.pluslet.type-articleplus','.pluslet.type-relguide',
+				'.pluslet.type-googlebooks','.pluslet.type-googlescholar','.pluslet.type-googlesearch','.pluslet.type-guideselect','.pluslet.type-newdbs','.pluslet.type-guidesearch','.pluslet.type-newguides','.pluslet.type-experts', '.pluslet.type-guidelist', '.pluslet.type-collectionlist']
+	
+			}, 
+			strings : {
+
+			},
+			init : function() {
+				
+				var g = guide();
+				var subjectId = g.getSubjectId();
+				
+				myPluslet.bindUiActions();
+				myPluslet.makeEditable('a[id*=edit]', subjectId);
+				myPluslet.makeDeleteable('a[id*=delete]');
+				myPluslet.makeDeleteable('.section_remove', 'sections');
+
+			},
+			bindUiActions : function() {
+				myPluslet.expandPluslet();
+				myPluslet.expandCollapseIndividualPluslet();
+				myPluslet.boxItemDropPluslet();
+				
+				////////////////////
+			    // Make titlebar options box clickable
+			    ///////////////////
+			    $(document).on('change', '.onoffswitch-checkbox', function() {
+
+			        var pluslet_id = $(this).parent().parent().parent().parent().attr('id') ;
+
+			    	if( $('#' + pluslet_id).attr('name').indexOf('modified-pluslet-') == -1)
+			    	{
+				    $('#' + pluslet_id).attr('name', 'modified-pluslet-' + $('#' + pluslet_id).attr('name'));
+			    	}
+
+			    	$('#response').hide();
+			        $('#save_guide').fadeIn();
+			    });
+			    
+			    
+			    ///////////////////////////////
+			    // Draw attention to TOC linked item
+			    ///////////////////////////////
+
+			    $(document.body).on('click','a[id*=boxid-]', function(event) {
+			    	var tab_id = $(this).attr('id').split('-')[1];
+			    	var box_id = $(this).attr('id').split('-')[2];
+
+			        var selected_box = '.pluslet-' + box_id;
+
+			    	$('#tabs').tabs('select', tab_id);
+
+			        $(selected_box).effect('pulsate', {
+			            times:1
+			        }, 2000);
+				//$(selected_box).animateHighlight('#dd0000', 1000);
+
+			    });
+
+			    
+			    ////////////////////
+			    // box-settings bind to show when clicking on gear or edit icon.
+			    ///////////////////
+			    $(document).on('click', 'a[id*=settings-]', function(event) {
+			        $(this).parent().parent().parent().find('.box_settings').toggle();
+			    });
+
+			},
+			dropPluslet : function(clone_id, item_type, origin_id, clone_title) {
+				var g = guide();
+				var subjectId = g.getSubjectId();
+			    // Create new node below, using a random number
+
+				var randomnumber=Math.floor(Math.random()*1000001);
+				$('.portal-column-1:visible').prepend('<div class=\'dropspotty\' id=\'new-' + randomnumber + '\'></div>');
+
+				// cloneid is used to tell us this is a clone
+				var new_id = 'pluslet-cloneid-' + clone_id;
+				// Load new data, on success (or failure!) change class of container to 'pluslet', and thus draggable in theory
+
+				$('#new-' + randomnumber).fadeIn('slow').load('helpers/guide_data.php', {
+					from: new_id,
+					flag: 'drop',
+					this_subject_id:  subjectId,
+					item_type: item_type
+				},
+				function() {
+					// 1.  remove the wrapper
+					// 2. put the contents of the div into a variable
+					// 3.  replace parent div (i.e., id='new-xxxxxx') with the content made by loaded file
+					var content = $('#new-' + randomnumber).contents();
+
+					if (content.find('input.clone-input')) {
+
+						content.find('input.clone-input').val(origin_id);
+					}
+
+					if (clone_title) {
+						content.find('[id^=pluslet-new-title]').val(clone_title);
+					}
+
+					$('#new-' + randomnumber).replaceWith(content);
+					$('#response').hide();
+					//Make save button appear, since there has been a change to the page
+					$('#save_guide').fadeIn();
+					//Close main flyout when a pluslet is dropped
+					$('#main-options').slideReveal('hide');
+
+					
+				});
+			}, 
+			getParameterByName : function(name) {
+				name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+				var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
+				results = regex.exec(location.search);
+				return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+			},
+			
+
+			expandPluslet : function() {
+				//Expand/Collapse Trigger CSS for all Pluslets on a Tab
+				document.addEventListener("DOMContentLoaded", function() {
+
+					$( '#expand_tab' ).click(function() {
+
+						$(this).find('i').toggleClass('fa-chevron-up fa-chevron-down');
+						$('.pluslet_body').toggle();
+						$('.pluslet_body').toggleClass('pluslet_body_closed');
+					});
+
+				});
+
+			},
+
+
+			makeEditable : function(lstrSelector, subjectId) {
+				////////////////////////////////
+				// MODIFY PLUSLET -- on click of edit (gear) icon
+				////////////////////////////////
+
+				$(document.body).on('click', lstrSelector, function(event) {
+					var isclone;
+					var edit_id = $(this).attr('id').split('-');
+
+					////////////
+					// Clone?
+					////////////
+
+					var clone = $('#pluslet-' + edit_id[1]).attr('class');
+					if (clone.indexOf('clone') !== -1) {
+						isclone = 1;
+					} else {
+						isclone = 0;
+					}
+
+					/////////////////////////////////////
+					// Load the form elements for editing
+					/////////////////////////////////////
+
+					$('#' + 'pluslet-' + edit_id[1]).load('helpers/guide_data.php', {
+						edit : edit_id[1],
+						clone : isclone,
+						flag : 'modify',
+						type : edit_id[2],
+						this_subject_id : subjectId
+					}, function() {
+						///////////////////////////////////////////////
+						// 1.  remove the wrapper
+						// 2. put the contents of the div into a variable
+						// 3.  replace parent div (i.e., id='xxxxxx') with the content made by loaded file
+						///////////////////////////////////////////////
+
+						var cnt = $('#' + 'pluslet-' + edit_id[1]).contents();
+						$('#' + 'pluslet-' + edit_id[1]).replaceWith(cnt);
+
+						/////////////////////////////////////
+						// Make unsortable for the time being
+						/////////////////////////////////////
+
+						$('#pluslet-' + edit_id[1]).addClass('unsortable');
+
+						//////////////////////////////////////
+						// We're changing the attribute here for the global save
+						//////////////////////////////////////
+
+						if (edit_id[2] !== undefined) {
+							var new_name = 'modified-pluslet-' + edit_id[2];
+							$('#pluslet-' + edit_id[1]).attr('name', new_name);
+						} else {
+							$('#pluslet-' + edit_id[1]).attr('name', 'modified-pluslet');
+						}
+
+						var h = help();
+						h.makeHelpable('img[class*=help-]');
+
+						//display box_settings for editable pluslet
+						$('#' + 'pluslet-' + edit_id[1]).find('.box_settings').delay(500).show();
+
+						//close box settings panel
+						$( '.close-settings' ).click(function() {      
+							$('#' + 'pluslet-' + edit_id[1]).find('.box_settings').hide();
+						});
+
+						// Hide body-content option from box settings options based on TYPE
+
+						for (var key in myPluslet.settings.hideBodyContent) {
+							var plusletType = myPluslet.settings.hideBodyContent[key];
+							$(plusletType).find('.body_set').addClass('hide-settings');
+						}
+
+						for (var key in myPluslet.settings.hideLinksNewTab) {
+							var plusletType = myPluslet.settings.hideLinksNewTab[key];
+							$(plusletType).find('.links_set').addClass('hide-settings');
+						}
+
+						for (var key in myPluslet.settings.hideTitleBar) {
+							var plusletType = myPluslet.settings.hideTitleBar[key];
+							$(plusletType).find('.titlebar_set').addClass('hide-settings');
+						}
+
+						// Hide make favorite option from box settings options based on TYPE
+
+						for (var key in myPluslet.settings.hideMarkFavorite) {
+							var plusletType = myPluslet.settings.hideMarkFavorite[key];
+							$(plusletType).find('.fav_set').addClass('hide-settings');
+						}
+
+					});
+
+					//Make save button appear, since there has been a change to the page
+					$('#response').hide();
+					$('#save_guide').fadeIn();
+
+					return false;
+				});
+			}, 
+			boxItemDropPluslet : function () {
+			    $('.box-item').dblclick('click', function(event) {
+			    	
+			    	
+			        var edit_id = $(this).attr('id').split('-');
+			        myPluslet.dropPluslet('', edit_id[2], '');
+
+			    });
+			},
+
+			makeDeleteable : function( lstrSelector, lstrType )
+			/////////////////////////////
+			//DELETE SECTION
+			/////////////////////////////
+
+			{
+				if( lstrType === 'sections' )
+				{
+
+					$('.guidewrapper').on('click', lstrSelector ,function(event) {
+
+						var delete_id = $(this).parent().parent().attr('id').split('_')[1];
+						var element_deletion = this;
+
+						//get all pluslets in a section
+						var this_sections_pluslets = $('#section_' + delete_id).children().find('.pluslet');
+						
+						if(this_sections_pluslets.length == 0) {
+
+							$('<div id="dialog" class=\'delete_confirm\' title=\'Are you sure?\'>All content in this section will be deleted.</div>').dialog({
+								autoOpen: false,
+								modal: true,
+								width: 'auto',
+								height: 'auto',
+								resizable: false,
+								buttons: {
+									'Yes': function() {
+										// Remove node
+										$(element_deletion).parent().parent().remove();
+										$('#response').hide();
+										var save = saveSetup();
+										save.saveGuide();
+										$('#save_guide').fadeOut();
+										$( this ).dialog( 'close' );
+										return false;
+									},
+									Cancel: function() {
+										$( this ).dialog( 'close' );
+									}
+								}
+							});
+
+							$('.delete_confirm').first().dialog('open');
+							return false;
+
+						} else {
+
+							//check for child pluslets and delete pluslet if none exist, otherwise
+							//display dialog box indicating child pluslets exist
+							myPluslet.fetchAllClones(this_sections_pluslets, element_deletion);
+
+						}
+
+
+					});
+				}else
+				{
+					////////////////////////////
+					// DELETE PLUSLET
+					// removes pluslet from DOM; change must be saved to persist
+					/////////////////////////////
+
+					$('.guidewrapper').on('click', lstrSelector ,function(event) {
+						var g = guide();
+						var subjectId = g.getSubjectId();
+						var deleteId = $(this).attr('id').split('-')[1];
+						var elementDeletion = this;
+
+						//pluslet has been saved
+						if(deleteId > 0) {
+							//check for child pluslets and delete pluslet if none exist, otherwise
+							//display dialog box indicating child pluslets exist
+							//console.log(subjectId);
+							myPluslet.fetchAllClonesByPlusletId(deleteId, subjectId, elementDeletion);
+						} else {
+							//pluslet has not been saved so just remove the node
+							$('<div class=\'delete_confirm\' title=\'Are you sure?\'></div>').dialog({
+								autoOpen: true,
+								modal: false,
+								width: 'auto',
+								height: 'auto',
+								resizable: false,
+								dialogClass: 'topindex',
+								buttons: {
+									'Yes': function() {
+
+										// Remove node
+										$(elementDeletion).parents('.pluslet').remove();
+										$( this ).dialog( 'close' );
+										return false;
+									},
+									Cancel: function() {
+										$( this ).dialog( 'close' );
+									}
+								}
+							});
+
+
+						}
+
+
+					});
+				}
+			}, 
+			
+			
+			expandCollapseCSS: function () {
+			    //Expand/Collapse Trigger CSS for all Pluslets on a Tab
+				document.addEventListener("DOMContentLoaded", function() {
+					$("#expand_tab").click(function () {
+						$(this).find('i').toggleClass('fa-chevron-up fa-chevron-down');
+						$('.pluslet_body').toggle();
+						$('.pluslet_body').toggleClass('pluslet_body_closed');
+					});
+				});
+			},
+
+		    expandCollapseIndividualPluslet: function () {
+				// expand collapse individual pluslets
+				document.addEventListener("DOMContentLoaded", function() {
+					// add font-awesome icon to pluslet
+					$('.pluslet_body').after('<div class="expand_collapse"><i class="fa fa-angle-up" title="Expand Collapse Box"></i></div>');
+
+					//remove copy of expand_collapse trigger when pluslet is a clone
+					$('.pluslet_body .pluslet_body').next('.expand_collapse').remove();
+
+					$('.expand_collapse i').click(function () {
+						console.log($(this));
+						if ($(this).hasClass('fa-angle-up')) {
+
+							$(this).removeClass('fa-angle-up');
+							$(this).addClass('fa-angle-down');
+						} else if ($(this).hasClass('fa-angle-down')) {
+
+							$(this).removeClass('fa-angle-down');
+							$(this).addClass('fa-angle-up');
+						}
+
+						$(this).parent().prev('div.pluslet_body').slideToggle('slow');
+
+					});
+				});
+			},
+
+			fetchAllClones: function(this_sections_pluslets, element_deletion) {
+				//get all cloned pluslets
+				var i = 0;
+				$(this_sections_pluslets).each(function() {
+
+
+					var section_pluslet_id = $(this).find('id').context.id.split('-')[1];
+
+					var req = $.ajax({
+						url: "helpers/fetch_cloned_pluslets.php",
+						type: "GET",
+						data: 'master_id=' + section_pluslet_id,
+						dataType: "json"
+					});
+
+					var success = function(resp) {
+						var clones = [];
+						$.each(resp.cloned_pluslets, function( key, value ) {
+							clones.push(value);
+						});
+
+						if(clones.length > 0) {
+							var titles = [];
+							$.each(clones, function( key, value ) {
+								titles.push(value.title);
+							});
+
+							$('<div>This section cannot be deleted because it has linked boxes.<br>' + titles + '</div>').dialog({
+								autoOpen: true,
+								modal: false,
+								width: 'auto',
+								height: 'auto',
+								resizable: false,
+								buttons: {
+									Cancel: function () {
+										$(this).dialog('close');
+									}
+								}
+							});
+							return false;
+
+						}
+					};
+
+					var err = function(req, status, err) {
+						return err;
+					};
+
+					req.then(success, err);
+
+				});
+
+			},
+
+			fetchAllClonesByPlusletId: function(pluslet_id, subjectId, elementDeletion) {
+
+				var req = $.ajax({
+					url: "helpers/fetch_cloned_pluslets.php",
+					type: "GET",
+					data: 'master_id=' + pluslet_id,
+					dataType: "json"
+				});
+
+				var success = function(resp) {
+					var responses = [];
+					$.each(resp, function( key, value ){
+						responses.push(value);
+					});
+
+					var objs = [];
+					$.each(responses, function( key, value ) {
+						objs.push(value);
+					});
+					var clones = [];
+					$.each(objs, function( key, value ) {
+						clones = value;
+					});
+
+
+					if(clones.length > 0) {
+						var titles = [];
+
+						$.each(clones, function( key, value ){
+							titles.push(value.title);
+						});
+
+						$('<div>This box cannot be deleted because it has linked boxes.' + titles + '</div>').dialog({
+							autoOpen: true,
+							modal: false,
+							width: 'auto',
+							height: 'auto',
+							resizable: false,
+							buttons: {
+								Cancel: function () {
+									$(this).dialog('close');
+								}
+							}
+						});
+						return false;
+					} else {
+						$('<div class=\'delete_confirm\' title=\'Are you sure?\'></div>').dialog({
+							autoOpen: true,
+							modal: false,
+							width: 'auto',
+							height: 'auto',
+							resizable: false,
+							dialogClass: 'topindex',
+							buttons: {
+								'Yes': function() {
+									// Delete pluslet from database
+									$('#response').load('helpers/guide_data.php', {
+												delete_id: pluslet_id,
+												subject_id: subjectId,
+												flag: 'delete'
+											},
+											function() {
+												$('#response').fadeIn();
+												$('#save_guide').fadeIn();
+
+											});
+
+									// Remove node
+									$(elementDeletion).parents('.pluslet').remove();
+									$( this ).dialog( 'close' );
+									return false;
+								},
+								Cancel: function() {
+									$( this ).dialog( 'close' );
+								}
+							}
+						});
+						return false;
+					}
+
+
+
+				};
+
+				var err = function(req, status, err) {
+					return err;
+				};
+
+				req.then(success, err);
+			}
+	}
+
+	return myPluslet;   
+}
+/**
+ * Object that encompasses the functionality of the custom list flyout.
+ * 
+ * 
+ * @author little9 (Jamie Little)
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function resourceList() {
+
+	"use strict";
+
+	var myDatabaseToken = {
+
+			"label": "",
+			"record_id": "",
+			"token_string": ""
+
+
+	};	
+	var myResourceList = {
+
+			settings: {
+				/** This contains configuration details like URLs and sets up any jQuery selectors that will be used in the object.  **/			
+
+				autoCompleteUrl: "../includes/autocomplete_data.php?collection=records&term=",
+				autoCompleteUrlAzList: "../includes/autocomplete_data.php?collection=azrecords&term=",
+				dbListButton: $(".dblist-button"),
+				dbListButtons: $(".db-list-buttons"),
+				dbListContent: $('.db-list-content'),
+				dbListResults: $('.db-list-results'),
+				dbListDraggable : $(".db-list-item-draggable"),
+				dbListResetButton: $('.dblist-reset-button'),
+				dbSearchResults: $('.databases-searchresults'),
+				dbSearchBox: $('.databases-search'),
+				listItem: $(".db-list-item-draggable"),
+				resetButton: $(".dblist-reset-button"),
+				listLabel: $(".db-list-label"),
+				listResults: $(".db-list-results"),
+				limitAz: $('#limit-az'),
+				showDescriptionToggle: $(".show-description-toggle"),
+				showIconsToggle: $(".show-icons-toggle"),
+				showNoteToggle: $(".include-note-toggle"),
+				click_count: 0,
+				searchTermMinimumLength: 3
+
+			},
+
+			strings: {
+				/** This contains any long strings that need to be used in the object or bits of HTML markup. **/
+
+				noResults: "<li><span class=\"no-box-results\">No Results</span></li>",
+				displayToggles: "<div><span class='show-icons-toggle db-list-toggle'><i class='fa fa-minus'></i><i class='fa fa-check'></i>" +
+				" Icons  </span><span class='show-description-toggle db-list-toggle'><i class='fa fa-minus'></i> <i class='fa fa-check'></i>" +
+				" Description </span><span class='include-note-toggle db-list-toggle'><i class='fa fa-minus'></i><i class='fa fa-check'></i>" +
+				" Note </span></div>"
+			},
+
+			init: function () {
+				/**
+				 * @memberof ResourceList
+				 */
+				/** @method
+				 * This function does inital setup for the object. It should call the bindUiActions function 
+				 **/
+
+				document.addEventListener("DOMContentLoaded", function(event) { 
+
+				myResourceList.bindUiActions();
+
+				});
+				
+				return myResourceList;
+			},
+
+
+			bindUiActions: function () {
+				/**  Used to bind the object's UI actions. Like 'click' or 'hover'. */
+
+				myResourceList.addToList();
+				myResourceList.resetList();
+				myResourceList.toggleIcons();
+
+				myResourceList.databaseSearch();
+				myResourceList.addListToPage();
+
+
+
+
+			},
+
+			addToList: function () {
+				/** This function adds the selected result to the list of database tokens. */
+				$('body').on("click", '.add-to-list-button', function () {
+
+					myResourceList.settings.dbListButtons.show();
+					myResourceList.settings.dbListContent.show();
+
+					var databaseToken = Object.create(myDatabaseToken);
+					databaseToken.label = $(this).attr('data-label').trim();
+					databaseToken.record_id = $(this).val();
+
+
+
+					myResourceList.settings.dbListResults.append("<li class='db-list-item-draggable' value='" + databaseToken.record_id + "'><span class='db-list-label'>" + databaseToken.label +
+							"</span>" + myResourceList.strings.displayToggles);
+					myResourceList.settings.dbListResults.sortable();
+					myResourceList.settings.dbListResults.disableSelection();
+					$('.db-list-item-draggable').last().find('.fa-check').hide();
+
+
+				});
+			},
+
+			resetList: function () {
+				/** This function resets the list of database tokens. **/
+
+
+				myResourceList.settings.dbListResetButton.on("click", function () {
+					myResourceList.settings.dbListResults.empty();
+					myResourceList.settings.dbSearchBox.val("");
+				});
+			},
+
+			toggleOptions: function (toggleElement) {
+				{
+
+					/** This function toggles the display options for a database token . **/
+
+					toggleElement.find('.fa-minus').toggle();
+					toggleElement.find('.fa-check').toggle();
+
+					toggleElement.toggleClass("active");
+
+					toggleElement.children().find('.fa-minus').toggle();
+
+
+					var include_icons = toggleElement.parent().find('.show-icons-toggle').hasClass('active') | 0;
+					var include_description = toggleElement.parent().find('.show-description-toggle').hasClass('active') | 0;
+					var display_note = toggleElement.parent().find('.include-note-toggle').hasClass('active') | 0;
+
+					var display_options = '' + include_icons + '' + include_description + '' + display_note + "";
+					toggleElement.parent().parent().data({ 'display_options': display_options });
+
+				}
+			},
+
+			toggleIcons: function () {
+
+				/** This function toggles the icons for the toggle options **/
+
+				$('body').on("click", ".show-description-toggle", function () {
+					myResourceList.toggleOptions($(this));
+				});
+				$('body').on("click", ".show-icons-toggle", function () {
+
+					myResourceList.toggleOptions($(this));
+				});
+				$('body').on("click", ".include-note-toggle", function () {
+					myResourceList.toggleOptions($(this));
+				});
+			},
+
+
+
+			databaseSearch: function () {
+				/** This function posts a string to the Autocomplete class to create a list of results. **/
+				myResourceList.settings.dbSearchBox.keyup(function () {
+
+					myResourceList.settings.dbSearchResults.empty();
+					var search_url;
+					var search_term = myResourceList.settings.dbSearchBox.val();
+					var limit_az = myResourceList.settings.limitAz.prop("checked");
+
+					if (limit_az) {
+						search_url = myResourceList.settings.autoCompleteUrl;
+					} else {
+						search_url = myResourceList.settings.autoCompleteUrlAzList;
+					}
+
+
+					if ($(this).val() === "") {
+						myResourceList.settings.dbSearchResults.html(myResourceList.strings.noResults);
+
+					}
+
+
+					if (search_term.length > myResourceList.settings.searchTermMinimumLength) {
+
+						$.get(search_url + search_term, function (data) {
+
+							if (data.length !== 0) {
+								for (var i = 0; i < 10; i++) {
+									try {
+										if (data[i]['content_type'] == "Record") {
+											
+											myResourceList.settings.dbSearchResults.append("<li data-pluslet-id='" + data[i].id + "' class=\"db-list-item database-listing\">" +
+													"<div class=\"pure-g\"><div class=\"pure-u-4-5 list-search-label\" title=\"" + data[i].label + "\">" + data[i].label + "</div>" +
+													"<div class=\"pure-u-1-5\" style=\"text-align:right;\">" +
+													"<button data-label='" + data[i].label + "' value='" + data[i].id + "' class=\"add-to-list-button pure-button pure-button-secondary\"><i class=\"fa fa-plus\"></i></button></div></div></li>");
+										}
+
+									} catch (e) {
+
+									}
+								}
+							} else {
+								myResourceList.settings.dbSearchResults.html(myResourceList.strings.noResults);
+							}
+						});
+
+					} else {
+						myResourceList.settings.dbSearchResults.html(myResourceList.strings.noResults);
+
+					}
+
+				});
+			},
+
+			addListToPage: function () {
+				/** This function adds a CKEditor to the page with the resource list that the user has created. It has a interval atteched to wait for the CKEditor to show up before setting the contents.  **/
+				myResourceList.settings.dbListButton.on("click", function () {
+					var ps = pluslet();
+					ps.dropPluslet('', 'Basic', '');
+					var waitCKEDITOR = setInterval(function () {
+						if (window.CKEDITOR) {
+							clearInterval(waitCKEDITOR);
+
+							var token_string = "<ul class='token-list'>";
+
+							$(".db-list-item-draggable").each(function (data) {
+								var title = $(this).find('.db-list-label').text();
+								var record_id = $(this).val();
+
+								// Grab the options
+								var display_options = $(this).data().display_options;
+
+
+								// If these are undefined, make them 0
+								display_options = (typeof display_options === 'undefined') ? "000" : display_options;
+
+
+								if ($(this).text()) {
+									token_string += "<li class='token-list-item'>{{dab},{" + record_id + "},{" + title + "}" + ",{" + display_options + "}}</li>";
+								}
+							});
+
+							token_string += "</ul>";
+
+
+
+							var ck_index = Object.keys(CKEDITOR.instances).length - 1;
+							CKEDITOR.instances[Object.keys(CKEDITOR.instances)[ck_index]].setData(token_string.trim());
+
+							myResourceList.settings.click_count++;
+							myResourceList.settings.dbListResults.empty();
+						}
+					}, 100);
+				});
+			}
+	};
+	return myResourceList; 
+};
+/**
+ * Sets up the click events for saving a guide and functions for actually saving the guide to the database. 
+ *  
+ * 
+ */
+
+function saveSetup() {
+	"use strict";
+
+	var mySaveSetup = {
+
+		settings : {},
+		strings : {},
+		bindUiActions : function() {
+			
+			////////////////////
+		    // on select change show save guide
+		    ///////////////////
+		    $(document).on('change', 'select[id^=titlebar-styling]', function(event) {
+			var pluslet_id = $(this).parent().parent().parent().parent().attr('id') ;
+
+			if( $('#' + pluslet_id).attr('name').indexOf('modified-pluslet-') === -1)
+			{
+			    $('#' + pluslet_id).attr('name', 'modified-pluslet-' + $('#' + pluslet_id).attr('name'));
+			}
+
+			$("#response").hide();
+			$("#save_guide").fadeIn();
+		    });
+		},
+		init : function() {
+			mySaveSetup.setupSaveButton('#save_guide');
+
+		},
+
+		setupSaveButton : function(lstrSelector) {
+			// //////////////////////////
+			// SAVE GUIDE'S LAYOUT
+			// -- this saves everything on page
+			// //////////////////////////
+
+			$(document.body)
+					.on(
+							'click',
+							lstrSelector,
+							function(event) {
+
+								var staff_id = $('#guide-parent-wrap').data.staffId;
+								var subject_id = $('#guide-parent-wrap').data.SubjectId;
+
+								// make sure our required fields have values
+								// before continuing
+								var test_req = mySaveSetup.checkRequired();
+
+								if (test_req === 1) {
+									alert("You must complete all required form fields.");
+									return false;
+								}
+
+								// 1. Look for new- or modified-pluslet
+								// 2. Check to make sure data is okay
+								// 3. Save to DB
+								// 4. Recreate pluslet with ID
+								// 5. Save layout
+
+								// //////////////////
+								// modified-pluslet
+								// loop through each pluslet
+								// /////////////////
+								$('div[name*=modified-pluslet]').each(
+										function() {
+
+											var update_id = $(this).attr("id")
+													.split("-");
+											var this_id = update_id[1];
+
+											// prepare the pluslets for saving
+											mySaveSetup.preparePluslets("modified",
+													this_id, this, staff_id,
+													subject_id);
+										});
+
+								// //////////////////////
+								// Now the new pluslets
+								// //////////////////////
+
+								$('div[name*=new-pluslet]')
+										.each(
+												function() {
+
+													var insert_id = $(this)
+															.attr("id"); // just
+													// a
+													// random
+													// gen
+													// number
+
+													// prepare pluslets for
+													// saving
+													mySaveSetup.preparePluslets("new",
+															insert_id, this,
+															staff_id,
+															subject_id);
+												});
+
+								// ////////////////////
+								// We're good, save the guide layout
+								// insert a pause so the new pluslet is found
+								// ////////////////////
+								$("#response").hide();
+								$("#save_guide").fadeOut();
+
+								mySaveSetup.saveGuide();
+
+								return false;
+
+							});
+
+		},
+		checkRequired : function() {
+			// If a required field is empty, set req_field to 1, and change the
+			// bg colour of the offending field
+			var req_field = 0;
+
+			$("*[class=required_field]").each(function() {
+				var check_this_field = $(this).val();
+
+				if (check_this_field === '' || check_this_field === null) {
+					$(this).attr("style", "background-color:#FFDFDF");
+					req_field = 1;
+				} else {
+					$(this).attr("style", "background-color:none");
+				}
+
+			});
+
+			return req_field;
+
+		},
+		preparePluslets : function (lstrType, lintID, lobjThis, staffId, subjectId) {
+			var lboolSettingsOnly = false;
+			var lstrInstance;
+			var lstrTitle;
+			var lstrDiv;
+			var lintUID;
+			var pbody;
+			var pitem_type;
+			var pspecial;
+			var ourflag;
+			var isclone;
+			var staff_id = staffId;
+			var subject_id = subjectId;
+			
+			//based on type set variables
+			///////////////////////
+		    // preparePluslets FUNCTION
+		    // called to prepare all the pluslets before saving them
+		    ///////////////////////
+
+			switch (lstrType.toLowerCase()) {
+			case "modified": {
+				//used to get contents of CKeditor box
+				lstrInstance = "pluslet-update-body-" + lintID;
+				//Title of item
+		        if($("#pluslet-update-title-" + lintID).val() == null) {
+		            b = $(".pluslet-" + lintID).find('.titlebar_text').clone();
+		            b.children().remove();
+		            lstrTitle = b.text().trim();
+		        } else {
+		            lstrTitle = mySaveSetup.addslashes($("#pluslet-update-title-" + lintID).val());
+		        }
+
+
+
+
+
+		        //console.log(lintID);
+				//console.log(lstrTitle);
+				//console.log("Title modified!");
+				if (lstrTitle === undefined) {
+					b = $(".pluslet-" + lintID).find('.titlebar_text').clone();
+					b.children().remove();
+					lstrTitle = b.text().trim();
+					lboolSettingsOnly = true;
+				}
+
+				//Div Selector
+				lstrDiv = "#pluslet-" + lintID;
+				//depending update_id
+				lintUID = lintID;
+				break;
+			}
+			case "new": {
+				//used to get contents of CKeditor box
+				lstrInstance = "pluslet-new-body-" + lintID;
+				//Title of item
+				lstrTitle = mySaveSetup.addslashes($("#pluslet-new-title-" + lintID).val());
+				//Div Selector
+				lstrDiv = "#" + lintID;
+				//depending update_id
+				lintUID = '';
+				break;
+			}
+			}
+
+			///////////////////////////////////////////////////////////////
+			// The box settings  are available on all pluslets potentially
+			// --they determine if titlebar shows, titlebar styling, if body
+			// is collapsed by default, and if body is suppressed (for a header pluslet)
+			////////////////////////////////////////////////////////////////
+
+			var boxsetting_hide_titlebar = Number($('input[id=notitle-' + lintID + ']')
+					.is(':checked'));
+			var boxsetting_collapse_titlebar = Number($(
+					'input[id=start-collapsed-' + lintID + ']').is(':checked'));
+			var boxsetting_titlebar_styling = $(
+					'select[id=titlebar-styling-' + lintID + ']').val();
+
+		    var favorite_box = Number($('input[id=favorite_box-' + lintID + ']')
+		        .is(':checked'));
+
+			var boxsetting_target_blank_links = Number($('input[id=target_blank_links-' + lintID + ']')
+				.is(':checked'));
+
+			//////////////////////////////////////////////////////////////////
+			// Check the pluslet's "name" value to see if there is a number
+			// --If it is numeric, it's a "normal" item with a ckeditor instance
+			// collecting the "body" information
+			//////////////////////////////////////////////////////////////
+
+			var item_type = $(lobjThis).attr("name").split("-");
+
+			// Loop through the box types
+			switch (item_type[2]) {
+			case "Basic":
+				if (typeof CKEDITOR !== 'undefined' && !lboolSettingsOnly) {
+
+					pbody = mySaveSetup.addslashes(CKEDITOR.instances[lstrInstance].getData());
+
+				} else {
+
+					pbody = $('#pluslet-' + lintID).find('.pluslet_body').html();
+				}
+
+				pitem_type = "Basic";
+				pspecial = '';
+				break;
+            case "BookList":
+                //if (typeof CKEDITOR !== 'undefined' && !lboolSettingsOnly) {
+                //
+                //    pbody = mySaveSetup.addslashes(CKEDITOR.instances[lstrInstance].getData());
+                //
+                //} else {
+
+                    //pbody = $('#pluslet-' + lintID).find('.pluslet_body').html();
+                //}
+
+                pitem_type = "BookList";
+                pspecial = '';
+                break;
+			case "Heading":
+				pbody = ""; // headings have no body
+				pitem_type = "Heading";
+
+				break;
+			case "TOC":
+				pbody = "";
+				pitem_type = "TOC";
+				var tickedBoxes = [];
+				$('input[name=checkbox-' + lintID + ']:checked').each(function() {
+
+					tickedBoxes.push(this.value);
+
+				});
+
+				pspecial = '{"ticked":"' + tickedBoxes + '"}';
+
+				break;
+			case "Feed":
+				pbody = $('input[name=' + lstrInstance + ']').val();
+				var pfeed_type = $('select[name=feed_type-' + lintID + ']').val();
+				var pnum_items = $('input[name=displaynum-' + lintID + ']').val();
+				var pshow_desc = $('input[name=showdesc-' + lintID + ']:checked').val();
+				var pshow_feed = $('input[name=showfeed-' + lintID + ']:checked').val();
+
+				pspecial = '{"num_items":' + pnum_items + ',  "show_desc":'
+						+ pshow_desc + ', "show_feed": ' + pshow_feed
+						+ ', "feed_type": "' + pfeed_type + '"}';
+
+				pitem_type = "Feed";
+				break;
+
+
+			case "SubjectSpecialist":
+
+				pbody = CKEDITOR.instances.editor1.getData();
+
+				pitem_type = item_type[2];
+				var extra = {};
+
+				//parse checkboxe inputs to create extra fields
+				$(lobjThis)
+						.find('input[name^=' + item_type[2] + '-extra][type=checkbox]')
+						.each(
+								function() {
+									var name_split = $(this).attr("name").split("-");
+									extra[name_split[2]] = typeof extra[name_split[2]] === 'undefined' ? []
+											: extra[name_split[2]];
+
+									if ($(this).is(':checked'))
+										extra[name_split[2]].push($(this).val());
+								});
+
+				pspecial = $.isEmptyObject(extra) ? "" : JSON.stringify(extra);
+
+				break;
+
+				case "Card":
+
+					pbody = CKEDITOR.instances.cardEditor.getData();
+
+					pitem_type = item_type[2];
+					var extra = {};
+
+					//parse text inputs to create extra fields
+					$(lobjThis).find('input[name^=' + item_type[2] + '-extra][type=url]')
+							.each(function() {
+								var name_split = $(this).attr("name").split("-");
+								extra[name_split[2]] = $(this).val();
+							});
+
+					//parse text inputs to create extra fields
+					$(lobjThis).find('input[name^=' + item_type[2] + '-extra][type=text]')
+							.each(function() {
+								var name_split = $(this).attr("name").split("-");
+								extra[name_split[2]] = $(this).val();
+							});
+
+					//parse textareas to create extra fields
+					$(lobjThis).find('textarea[name^=' + item_type[2] + '-extra]').each(
+							function() {
+								var name_split = $(this).attr("name").split("-");
+								extra[name_split[2]] = $(this).val();
+							});
+
+					//parse selectboxes to create extra fields
+					$(lobjThis).find('select[name^=' + item_type[2] + '-extra]').each(
+							function() {
+								var name_split = $(this).attr("name").split("-");
+								extra[name_split[2]] = $(this).val();
+							});
+
+					//parse radio inputs to create extra fields
+					$(lobjThis)
+							.find('input[name^=' + item_type[2] + '-extra][type=radio]')
+							.each(
+									function() {
+										var name_split = $(this).attr("name").split("-");
+										extra[name_split[2]] = typeof extra[name_split[2]] === 'undefined' ? ''
+												: extra[name_split[2]];
+
+										if ($(this).is(':checked'))
+											extra[name_split[2]] = $(this).val();
+									});
+
+					//parse checkboxe inputs to create extra fields
+					$(lobjThis)
+							.find('input[name^=' + item_type[2] + '-extra][type=checkbox]')
+							.each(
+									function() {
+										var name_split = $(this).attr("name").split("-");
+										extra[name_split[2]] = typeof extra[name_split[2]] === 'undefined' ? []
+												: extra[name_split[2]];
+
+										if ($(this).is(':checked'))
+											extra[name_split[2]].push($(this).val());
+									});
+
+					pspecial = $.isEmptyObject(extra) ? "" : JSON.stringify(extra);
+
+					break;
+			default:
+
+				pbody = $('#' + item_type[2] + '-body').html();
+				pbody = pbody === undefined ? "" : pbody;
+				pitem_type = item_type[2];
+				var extra = {};
+
+				//parse text inputs to create extra fields
+				$(lobjThis).find('input[name^=' + item_type[2] + '-extra][type=text]')
+						.each(function() {
+							var name_split = $(this).attr("name").split("-");
+							extra[name_split[2]] = $(this).val();
+						});
+
+				//parse textareas to create extra fields
+				$(lobjThis).find('textarea[name^=' + item_type[2] + '-extra]').each(
+						function() {
+							var name_split = $(this).attr("name").split("-");
+							extra[name_split[2]] = $(this).val();
+						});
+
+				//parse selectboxes to create extra fields
+				$(lobjThis).find('select[name^=' + item_type[2] + '-extra]').each(
+						function() {
+							var name_split = $(this).attr("name").split("-");
+							extra[name_split[2]] = $(this).val();
+						});
+
+				//parse radio inputs to create extra fields
+				$(lobjThis)
+						.find('input[name^=' + item_type[2] + '-extra][type=radio]')
+						.each(
+								function() {
+									var name_split = $(this).attr("name").split("-");
+									extra[name_split[2]] = typeof extra[name_split[2]] === 'undefined' ? ''
+											: extra[name_split[2]];
+
+									if ($(this).is(':checked'))
+										extra[name_split[2]] = $(this).val();
+								});
+
+				//parse checkboxe inputs to create extra fields
+				$(lobjThis)
+						.find('input[name^=' + item_type[2] + '-extra][type=checkbox]')
+						.each(
+								function() {
+									var name_split = $(this).attr("name").split("-");
+									extra[name_split[2]] = typeof extra[name_split[2]] === 'undefined' ? []
+											: extra[name_split[2]];
+
+									if ($(this).is(':checked'))
+										extra[name_split[2]].push($(this).val());
+								});
+
+				pspecial = $.isEmptyObject(extra) ? "" : JSON.stringify(extra);
+
+				break;
+			}
+
+			//only check clone if modified pluslet
+			if (lstrType === 'modified') {
+				//////////////////////
+				// Clone?
+				// If it's a clone, add a new entry to DB
+				/////////////////////
+
+				//console.log(lintID);
+				var clone = $("#pluslet-" + lintID).attr("class");
+
+				//console.log(clone);
+				if (clone.indexOf("clone") !== -1) {
+					ourflag = 'insert';
+					isclone = 1;
+
+				} else {
+					ourflag = 'update';
+					isclone = 0;
+				}
+
+				//only settings update
+				if (lboolSettingsOnly) {
+					ourflag = 'settings';
+				}
+			} else {
+				ourflag = 'insert';
+				isclone = 0;
+			}
+
+			////////////////////////
+			// Post the data to guide_data.php
+			// which will do an insert or update as appropriate
+			//
+			// **changed by dgonzalez 08/2013 so that request is not done
+			// asynchronously so that setTimeout to save guide is no longer needed.
+			////////////////////////
+
+			$.ajax({
+						url : "helpers/guide_data.php",
+						data : {
+							update_id : lintUID,
+							pluslet_title : lstrTitle,
+							pluslet_body : pbody,
+							flag : ourflag,
+							staff_id : staff_id,
+							item_type : pitem_type,
+							clone : isclone,
+							special : pspecial,
+							this_subject_id : guide().getSubjectId(),
+							boxsetting_hide_titlebar : boxsetting_hide_titlebar,
+							boxsetting_collapse_titlebar : boxsetting_collapse_titlebar,
+							boxsetting_titlebar_styling : boxsetting_titlebar_styling,
+		                    favorite_box : favorite_box,
+							boxsetting_target_blank_links: boxsetting_target_blank_links
+
+						},
+						type : "POST",
+						success : function(response) {
+							var this_div;
+
+							//load response into pluslet
+							$(lstrDiv).html(response);
+
+							// check if it's an insert or an update, and name div accordingly
+							if (ourflag === "update" || ourflag === "settings"
+									|| isclone === 1) {
+								this_div = '#pluslet-' + lintID;
+							} else {
+								this_div = '#' + lintID;
+							}
+
+							// 1.  remove the wrapper
+							// 2. put the contents of the div into a variable
+							// 3.  replace parent div (i.e., id="xxxxxx") with the content made by loaded file
+							var cnt = $(this_div).contents();
+
+							$(this_div).replaceWith(cnt);
+						},
+						async : false
+					});
+		},
+		addslashes : function (string) {
+			//////////////////
+			// addslashes called inside guide save, above
+			// ///////////////
+		    return (string+'').replace(/([\\"'])/g, "\\$1").replace(/\0/g, "\\0");
+		},
+		saveGuide : function () {
+		    ///////////////////////
+			// saveGuide FUNCTION
+			// called at end of previous section
+			//////////////////////
+		    var lobjTabs = [];
+		    var lstrTabs; 
+
+		    $('a[href^="#tab"]').each(function () {
+		        var lstrName = $(this).text();
+		        var lstrExternal = $(this).parent('li').attr('data-external-link');
+		        var lintVisibility = parseInt($(this).parent('li').attr('data-visibility'));
+		        var tab_id = $(this).attr("href").split("tabs-")[1];
+		        console.log("Tab ids:" + tab_id);
+		        var lobjTab = {};
+		        lobjTab.name = lstrName;
+		        lobjTab.external = lstrExternal;
+		        lobjTab.visibility = lintVisibility;
+		        lobjTab.sections = [];
+
+		        $('div#tabs-' + tab_id + ' div[id^="section_"]').each(function () {
+		            console.log("Selector:" + 'div#tabs-' + tab_id + ' div[id^="section_"]');
+		            var section_id = $(this).attr("id").split("section_")[1];
+		            console.log("Section ID:" + section_id);
+		            var lobjSection = {};
+		            lobjSection.center_data = "";
+		            lobjSection.left_data = "";
+		            lobjSection.sidebar_data = "";
+
+		            lobjSection.layout = $(this).data('layout');
+
+		            $('div#section_' + section_id + ' div.portal-column-0').sortable();
+		            $('div#section_' + section_id + ' div.portal-column-1').sortable();
+		            $('div#section_' + section_id + ' div.portal-column-2').sortable();
+
+		            lobjSection.left_data = $('div#section_' + section_id + ' div.portal-column-0').sortable('serialize');
+
+
+		            lobjSection.center_data = $('div#section_' + section_id + ' div.portal-column-1').sortable('serialize');
+		         
+
+		            lobjSection.sidebar_data = $('div#section_' + section_id + ' div.portal-column-2').sortable('serialize');
+
+		            lobjTab.sections.push(lobjSection);
+		        });
+
+		        lobjTabs.push(lobjTab);
+		    });
+
+		    lstrTabs = JSON.stringify(lobjTabs);
+		    console.log(lstrTabs);
+		    $("#response").load("helpers/save_guide.php", {
+		            this_subject_id: $('#guide-parent-wrap').data().subjectId,
+		            user_name: $('#guide-parent-wrap').data().staffId,
+		            tabs: lstrTabs
+		        },
+		        function () {
+		            
+		            $("#response").fadeIn();
+		            mySaveSetup.refreshFeeds();
+		         
+		            var g = guide();
+		            
+		            favoriteBox().getUserFavoriteBoxes(g.getStaffId());
+		            favoriteBox().markAsFavorite();
+		            copyClone().markAsLinked();
+
+
+
+		        });
+		},
+		refreshFeeds: function () {
+		    /////////////////////
+		    // refreshFeeds
+		    // --loads the various feeds after the page has loaded
+		    /////////////////////
+
+		    $(".find_feed").each(function (n) {
+		        var feed = $(this).attr("name").split("|");
+		        $(this).load("../../subjects/includes/feedme.php", {
+		            type: feed[4],
+		            feed: feed[0],
+		            count: feed[1],
+		            show_desc: feed[2],
+		            show_feed: feed[3]
+		        });
+		    });
+
+		}
+	};
+	return mySaveSetup;
+}
+/**
+ * 
+ * Object that allows you to add new sections and handle events related to the sections.
+ *
+ * 
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function section() {
+	"use strict";
+
+	var mySection = {
+
+		settings : {
+			sectionDataPath : "helpers/section_data.php"
+		},
+		strings : {},
+		bindUiActions : function() {
+			mySection.chooseSectionForLayouts();
+		},
+		init: function () {
+		     
+		    mySection.bindUiActions();
+		    
+		    $( document ).ajaxComplete(function() {
+		    	// Click the first section after everything has loaded.
+			    mySection.clickInitialSection();
+			    mySection.viewSectionControls();
+				mySection.clickTabOnSwitch();
+
+		    });
+			
+		},
+		viewSectionControls : function() {
+			
+			
+			$('.sptab').each(function() { 
+				 if($(this).children().size() > 1) {
+					 console.log("More than one?");
+					 $(this).children().find('.sp_section_controls').show();
+				 } 	else {
+					 
+					 $(this).children().find('.sp_section_controls').hide();
+				     $(this).find('.sp_section').removeClass('section_selected_area');
+
+
+				 }
+				});
+			
+		},
+		makeAddSection : function(lstrSelector)
+		///////////////
+		//function to add section to current tab	
+		//////////////
+		{
+
+			$(lstrSelector).on('click', function() {
+				
+				//$(tabs).tabs();
+				var selectedTab = $('#tabs').tabs('option', 'selected');
+				console.log(selectedTab);
+				$.ajax({
+					
+					url : mySection.settings.sectionDataPath,
+					type : "POST",
+					data : {
+					action : 'create'
+					
+					},
+					dataType : "html",
+					success : function(html) {
+
+						$('div#tabs-' + selectedTab).append(html);
+						$(document).scrollTop($('body').height());
+
+						// Make sure that the new section can accept drops
+						var drop = drag();
+						drop.makeDropable(".dropspotty");
+						
+						// When you add a section fade in the save button 
+						$("#save_guide").fadeIn();
+						//$('.sp_section_controls').first().show();
+						
+						$('div#tabs-' + selectedTab)
+						var newSection = $('#tabs-' + selectedTab + ' .sp_section_controls').last();
+						newSection.trigger('click');
+
+						var l = layout();
+						l.highlightLayout(newSection.parent());
+					    
+						mySection.viewSectionControls();
+
+					}
+				});
+			});
+		},
+		chooseSectionForLayouts : function () {
+			
+			/**
+			 * If you click on the section controls, the section controls that you clicked on will be 
+			 * hightlighted and the layouts control will effect that section. 
+			 */
+			$('body').on('click','.sp_section_controls', function() {
+				var l = layout();
+				
+				// Removes existing highlights and controls 
+				
+				$('.sp_section_controls').removeClass('sp_section_selected');
+				$('.sp_section').removeClass('section_selected_area');
+				
+				$('#layout_options_content').data('selected-section', '');
+
+				// This adds the classes for highlighting 
+				
+			 	$(this).toggleClass('sp_section_selected');
+			    $(this).parent().toggleClass('section_selected_area');
+				
+				
+				
+				var selectedSectionId = $(this).parent().attr('id').split('_')[1];
+				$('#layout_options_content').data('selected-section', selectedSectionId);
+				l.activateLayoutButtons();
+				// Highlight the layout that is associated with the section. 
+				l.highlightLayout($(this).parent())
+				// Show the initial section. Now you are using sections so you will need the section contorls.
+				
+
+				
+			});
+		},
+		clickInitialSection : function() {
+			
+			// Click the first section to mark it as active 
+			$('.sp_section_controls').first().trigger('click');
+			
+		},
+		clickTabOnSwitch : function () {
+			
+			$('body').on('click', '.ui-tabs-nav > li', function() {
+				 var tabIndex = $(this).attr('aria-controls').split('-')[1];
+				$('#tabs-' + tabIndex).children().first().find('.sp_section_controls').trigger('click');
+				mySection.viewSectionControls();
+				
+			});
+			
+			
+			
+		},
+		
+		setupHighlights : function() {
+			// Hide the first section control in each of the tabs:
+			$('.sp_section:first-child .sp_section_controls').hide();
+			
+			
+		}
+	};
+
+	return mySection;
+}
+
+/**
+ * Style changes that are triggered with js. 
+ * 
+ * @constructor style
+ * 
+ * 
+ */
+
+function style() {
+	"use strict";
+
+    var myStyle = {
+        settings: {
+            globalHeader: $("#header, #subnavcontainer")       
+        },
+        strings: {
+        },
+        bindUiActions: function () {
+        	myStyle.hideControlHeader();
+        },
+        init: function () {
+            /** Since we are in the guide creation interface we'll need to hide the bar at the top */
+            myStyle.settings.globalHeader.hide();
+            myStyle.fixFlashFOUC();
+            myStyle.bindUiActions();
+        },
+        fixFlashFOUC: function () {
+            $(".guidewrapper").css("display", "block");
+            $("#main-options").css("display", "block");
+        }, 
+        hideControlHeader : function () {
+        	
+        	 $('#hide_header').click(function(event) {
+        	 $("#header, #subnavcontainer").toggle('fast');
+        	  });
+        }
+   
+       
+        
+
+    };
+    return myStyle;
+}
+/**
+ * 
+ * Set ups click events and tabs functionality on the guide page.
+ *   
+ */
+/*jslint browser: true*/
+/*global $, jQuery, alert*/
+function tabs() {
+	"use strict";
+    var myTabs = {
+        settings: {
+            tabTitle: $('#tab_title'),
+            tabContent: $('#tab_content'),
+            tabCounter: $('#tabs').data().tabCount,
+            tabs: $('#tabs').tabs(),
+            tabsDialog : $("#dialog"),
+            dialog: $('#dialog').dialog,
+            editTabDialog : $("#dialog_edit"),
+            externalLink: 'input[name=\'tab_external_link\']',
+            dataExternalLink: 'li[data-external-link]',
+            saveButton: $('#save_guide'),
+            tabExternalUrl: 'input[name=\'tab_external_url\']',
+            findBoxTabs: $('#find-box-tabs')
+        },
+        strings: {
+            tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='alter_tab' role='presentation'><i class=\"fa fa-cog\"></i></span></li>",
+            reorderTabString: "<li  class='panel-list-item'>Please save all changes before sorting tabs.</li>",
+            confirmPrompt: "Are you sure you want to remove all boxes?"
+        },
+        bindUiActions: function () {
+            myTabs.removePlusletsFromCurrentTab();
+            myTabs.makeTabsClickable();
+
+            myTabs.reorderTabsFlyout();
+            myTabs.fetchTabsFlyout();
+            myTabs.sortTabsFlyout();
+
+
+            //configure sortable drag and drop zone for creating new guide from tabs
+            myTabs.newGuideFromTabsSortable();
+            //copy tabs to create new guide
+            myTabs.createNewGuideFromTabs();
+
+       
+        },
+        init: function () {
+            myTabs.setupTabs();
+            myTabs.bindUiActions();
+            myTabs.targetBlankLinks();
+            //Find Box Tabs - Browse and Search
+           
+
+            //Find Box Tabs - Browse and Search
+            myTabs.settings.findBoxTabs.tabs();
+            
+
+			var sec = section();
+			sec.makeAddSection('a[id="add_section"]');
+
+
+        
+        },
+		getSectionForNewTab : function (id, external_link, li, tabContentHtml) {
+
+			if (!external_link) {
+		$.ajax
+                    ({
+                        url: "helpers/section_data.php",
+                        type: "POST",
+                        data: { action: 'create' },
+                        dataType: "html",
+                        success: function (html) {
+                            
+
+                            myTabs.settings.tabs.append("<div id='" + id + "' class=\"sptab\">" + html
+                                + "</div>");	
+                        }
+                    });
+			}
+					
+					myTabs.settings.saveButton.fadeIn();
+
+
+                            $('#tabs').tabs();
+
+                            if (external_link === '') {
+                                $('#tabs').tabs("refresh");
+                                $('#tabs').tabs('select', $('#tabs').data().tabCount);
+                            } else {
+                             
+                                myTabs.settings.tabs.tabs('select', 0);
+                            }
+
+                            if ($(li).attr('data-external-link') !== '') {
+                                $(li).children('a[href^="#tabs-"]').on('click', function (evt) {
+                                    window.open($(this).parent('li').attr('data-external-link'), '_blank');
+                                    evt.stopImmediatePropagation();
+                                });
+                            }
+
+                            $(li).children('a[href^="#tabs-"]').each(function (data) {
+                                var events = $._data(data, "events");
+                                  
+                                if (events) {
+                                    console.log(events);
+                                    var onClickHandlers = events['click'];
+
+                                    // Only one handler. Nothing to change.
+                                    if (onClickHandlers.length === 1) {
+                                        return;
+                                    }
+
+                                    onClickHandlers.splice(0, 0, onClickHandlers.pop());
+                                }
+                                });
+                            
+                            $('#tabs').data().tabCount++;
+
+                            setTimeout(function() {
+                                $('#'+id).find('.sp_section_controls').trigger('click');
+                                $('#'+id).find('.sp_section').removeClass('section_selected_area');
+
+                            },100);
+
+		},
+        setupTabs: function () {
+
+            var myDialog = myTabs.settings.tabsDialog.dialog({
+                autoOpen: false,
+                modal: true,
+                buttons: {
+                    Add: function () {
+                        addTab();
+                        $(this).dialog("close");
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                open: function () {
+                    $(this).find(myTabs.settings.externalLink).hide();
+                    $(this).find(myTabs.settings.externalLink).prev().hide();
+                    if (myTabs.settings.tabCounter > 0) {
+                        $(this).find(myTabs.settings.externalLink).show();
+                        $(this).find(myTabs.settings.externalLink).prev().show();
+                    }
+                },
+                close: function () {
+                    form[0].reset();
+                }
+            });
+            
+
+                
+
+            //setup dialog to edit tab
+            var editTabDialog = myTabs.settings.editTabDialog.dialog({
+                autoOpen: false,
+                modal: true,
+                width: "auto",
+                height: "auto",
+                buttons: {
+                    "Save": function () {
+                        var id = window.lastClickedTab.replace("#tabs-", "");
+                        console.log(window.lastClickedTab);
+                        $('a[href="#tabs-' + id + '"]').text($('input[name="rename_tab_title"]').val());
+                        $('a[href="#tabs-' + id + '"]').parent('li').attr('data-visibility', $('select[name="visibility"]').val());
+
+                        if ($('a[href="#tabs-' + id + '"]').parent('li').attr('data-external-link') !== '') {
+                            $('a[href="#tabs-' + id + '"]').each(function () {
+                                var elementData = $._data(this),
+                                    events = elementData.events;
+
+                                var onClickHandlers = events['click'];
+                                console.log(onClickHandlers);
+                                // Only one handler. Nothing to change.
+                                if (onClickHandlers.length === 1) {
+                                    return;
+                                }
+
+                                onClickHandlers.splice(0, 1);
+                            });
+                        }
+
+                        $('a[href="#tabs-' + id + '"]').parent('li').attr('data-external-link', $(myTabs.settings.tabExternalUrl).val());
+
+                        if ($(myTabs.settings.tabExternalUrl).val() !== '') {
+                            $('a[href="#tabs-' + id + '"]').on('click', function (evt) {
+                                window.open($(this).parent('li').attr('data-external-link'), '_blank');
+                                evt.stopImmediatePropagation();
+                            });
+
+                            $('a[href="#tabs-' + id + '"]').each(function () {
+                                var elementData = $._data(this),
+                                    events = elementData.events;
+
+                                var onClickHandlers = events['click'];
+
+                                // Only one handler. Nothing to change.
+                                if (onClickHandlers.length === 1) {
+                                    return;
+                                }
+
+                                onClickHandlers.splice(0, 0, onClickHandlers.pop());
+                            });
+                        }
+
+                        //add/remove class based on tab visibility
+                        if ($('select[name="visibility"]').val() === 1) {
+                            $('a[href="#tabs-' + id + '"]').parent('li').removeClass('hidden_tab');
+                        } else {
+                            $('a[href="#tabs-' + id + '"]').parent('li').addClass('hidden_tab');
+                        }
+
+                        $(this).dialog("close");
+                        $("#response").hide();
+                        console.log('save guide fade in');
+                        $('#save_guide').fadeIn();
+                        
+                    },
+                    "Delete": function () {
+                        var id = window.lastClickedTab.replace("#tabs-", "");
+
+                        $('a[href="#tabs-' + id + '"]').parent().remove();
+                        $('div#tabs-' + id).remove();
+                        myTabs.settings.tabs.tabs("destroy");
+                        myTabs.settings.tabs.tabs();
+                        myTabs.settings.tabCounter--;
+                        $(this).dialog("close");
+                        $("#response").hide();
+                        $('#save_guide').fadeIn();
+                        //$('#save_template').fadeIn();
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                open: function (event, ui) {
+                    var id = window.lastClickedTab.replace("#tabs-", "");
+                    $(this).find('input[name="rename_tab_title"]').val($('a[href="#tabs-' + id + '"]').text());
+                    $(this).find('select[name="visibility"]').val($('a[href="#tabs-' + id + '"]').parent('li').attr('data-visibility'));
+
+                    //external url add text input unless first tab
+                    $(this).find(myTabs.settings.tabExternalUrl).val('');
+                    $(this).find(myTabs.settings.tabExternalUrl).hide();
+                    $(this).find(myTabs.settings.tabExternalUrl).prev().hide();
+                    $(this).find(myTabs.settings.tabExternalUrl).val($('a[href="#tabs-' + id + '"]').parent('li').attr('data-external-link'));
+                    if (id !== '0') {
+                        $(this).find(myTabs.settings.tabExternalUrl).show();
+                        $(this).find(myTabs.settings.tabExternalUrl).prev().show();
+                    }
+                },
+                close: function () {
+                    form[0].reset();
+                }
+            });
+
+            //add click event for external url tabs
+            $(myTabs.settings.dataExternalLink).each(function () {
+                if ($(this).attr('data-external-link') !== "") {
+                    $(this).children('a[href^="#tabs-"]').on('click', function (evt) {
+                        window.open($(this).parent('li').attr('data-external-link'), '_blank');
+                        evt.stopImmediatePropagation();
+                    });
+
+                    $(this).children('a[href^="#tabs-"]').each(function () {
+                        var elementData = $._data(this),
+                            events = elementData.events;
+
+                        var onClickHandlers = events['click'];
+
+                        // Only one handler. Nothing to change.
+                        if (onClickHandlers.length === 1) {
+                            return;
+                        }
+
+                        onClickHandlers.splice(0, 0, onClickHandlers.pop());
+                    });
+                }
+            });
+
+            // edit icon: removing or renaming tab on click
+            myTabs.settings.tabs.delegate("span.alter_tab", "click", function (lobjClicked) {
+                var List = $(this).parent().children("a");
+                var Tab = List[0];
+                window.lastClickedTab = $(Tab).attr("href");
+                editTabDialog.dialog("open");
+            });
+
+            // addTab button: just opens the dialog
+            $("#add_tab").button().click(function () {
+                myDialog.dialog("open");
+            });
+
+
+            // addTab form: calls addTab function on submit and closes the dialog
+            var form = myDialog.find("form").submit(function (event) {
+                addTab();
+                myDialog.dialog("close");
+                event.preventDefault();
+            });
+
+            // actual addTab function: adds new tab using the input from the form above
+            function addTab() {
+                var tabTemplate = "<li><a href='#{href}'>#{label}</a><span class='alter_tab' role='presentation'><i class=\"fa fa-cog\"></i><span></li>";
+
+                var label = myTabs.settings.tabTitle.val() || "Tab " + $('#tabs').data().tabCount,
+                    external_link = $('input#tab_external_link').val(),
+                    id = "tabs-" + $('#tabs').data().tabCount,
+                   
+                    li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+                     
+                    tabContentHtml = myTabs.settings.tabContent.val() || "Tab " + myTabs.settings.tabCounter + " content.";
+
+                var visibility = $('select[name="new-tab-visibility"]').val();
+
+                $(li).attr('data-external-link', external_link);
+                //console.log(id);
+                $(li).attr('data-visibility', visibility);
+                //console.log(id);
+                myTabs.settings.tabs.find(".ui-tabs-nav").append(li);
+                //console.log($(li));
+
+				myTabs.getSectionForNewTab(id, external_link, li, tabContentHtml);
+
+
+                //override submit for form in edit tab dialog to click rename button
+                $("#dialog_edit").find("form").submit(function (event) {
+                    $(this).parent().parent().find('span:contains("Rename")').click();
+                    event.preventDefault();
+                });
+                
+                // Move the expand tab to the end
+                $('#expand_tab').appendTo('#tabs .ui-tabs-nav')
+            }
+        }, 
+        removePlusletsFromCurrentTab: function () {
+            //remove all pluslets from current tab
+            $('a.remove_pluslets').on('click', function () {
+                var currPanel = $("#tabs").tabs('option', 'active');
+                if (confirm(myTabs.strings.confirmPrompt)) {
+                    $("#tabs-" + currPanel).find('.pluslet').remove();
+                    $("#save_guide").fadeIn();
+                }
+            });
+        },
+        targetBlankLinks: function () {
+            // open links in new tab if box_setting target_blank_links is checked.
+            //this is for admin side, user view also has function in /subjects/guide.php
+            var $target_blank_links = $(".target_blank_links");
+            $target_blank_links.each(function () {
+                if ($("input:checked")) {
+                    $(this).find('a').attr('target', '_blank');
+                }
+            });
+        }, 
+        makeTabsClickable : function() {
+            ////////////////////
+            // Make page tabs clickable
+            ///////////////////
+            $(document.body).on('click','a[id*=tab-]', function(event) {
+                var tab_id = $(this).attr("id").split("-");
+               var selected_tab = "#pluslet-" + box_id[1];
+               myTabs.setupTabs(tab_id[1]);
+
+            });
+        },
+        fetchTabsFlyout : function(subjectId) {
+
+            $(".flyout-tabs").empty();
+
+            jQuery.ajax({
+                url: "./helpers/fetch_tabs.php?subject_id=" + subjectId,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+
+                    if(!data.tabs.length) {
+                        //no results
+                        $(".flyout-tabs").append( "<li  class='panel-list-item'>Tab sorting not available.</li>");
+                    }
+
+                    $.each(data.tabs, function(idx, obj) {
+                        $(".flyout-tabs").append( "<li id='item_"+ obj.tab_id +"' class='panel-list-item' title='" + obj.label + "'><i class='fa fa-sort'></i> " +obj.label + "</li>");
+                    });
+                }
+            });
+        },
+        sortTabsFlyout : function() {
+
+            $("#flayout-tab-list").sortable({connectWith: "#flayout-tab-list"});
+
+            $('#save_tab_order_btn').on('click', function () {
+
+                var data = $("#flayout-tab-list").sortable('serialize');
+
+                $.post('./helpers/save_tab_order.php', {"data": data}, function(d){
+
+                }).done(function() {
+
+                    location.reload();
+
+                });
+
+            });
+
+        },
+        reorderTabsFlyout : function() {
+            document.addEventListener("DOMContentLoaded", function() {
+
+            	var g = guide();
+                var subjectId = g.getSubjectId();
+
+                $('#show_tabs').on('click', function() {
+
+                    if( $("#save_guide").is(':visible') ) {
+
+                        $(".flyout-tabs").append( myTabs.strings.reorderTabString);
+
+                        $("#save_tab_order_btn").hide();
+
+                    } else {
+
+                        myTabs.fetchTabsFlyout(subjectId);
+
+                        myTabs.sortTabsFlyout();
+
+                        $("#save_tab_order_btn").show();
+                    }
+
+                });
+
+            });
+
+        },
+
+        newGuideFromTabsSortable : function() {
+
+            var oldList, newList, item;
+            $(".categories-sortable").sortable({
+                    connectWith: $('.categories-sortable'),
+                    start: function (event, ui) {
+                        item = ui.item;
+                        newList = oldList = ui.item.parent();
+
+                    },
+                    stop: function (event, ui) {
+                        var str = item.context.id;
+                        var tab_id = str.split("_");
+                    },
+                    change: function (event, ui) {
+                        if (ui.sender) {
+                            newList = ui.placeholder.parent();
+                        }
+                    },
+                })
+                .disableSelection();
+
+        },
+        createNewGuideFromTabs : function() {
+
+            function urlParam(name){
+                var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+                if (results==null){
+                    return null;
+                }
+                else{
+                    return results[1] || 0;
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                $('.create-guide').on('click', function() {
+
+                    console.log('copy guide');
+
+                    var selected_guide = urlParam('subject_id');
+
+                    var tabs = [];
+                    $('#categories-chosen li').each(function(i) {
+                        tabs.push($(this).attr('id').split('_')[1]);
+                    });
+
+                    if(tabs !== '') {
+                        var url = "create_guide_from_tabs.php?tabs=" + tabs;
+                    } else {
+                        var url = "create_guide_from_tabs.php";
+                    }
+
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: {
+                            subject_id : selected_guide,
+                            tabs: tabs
+                        },
+                        success: function(new_subject_id) {
+
+                            $('.metadata-url').show();
+                            $('.metadata-url').attr('href', "metadata.php?subject_id=" + new_subject_id);
+                            console.log(new_subject_id);
+                            window.location.href = "/control/guides/metadata.php?subject_id=" + new_subject_id;
+                        },
+                        fail: function (err) {
+                            console.log(err);
+                        }
+                    });
+                });
+            });
+
+        }
+    }
+    return myTabs;
+}

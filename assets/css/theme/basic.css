@@ -1,0 +1,7 @@
+body {
+        background: #e3e1d9 url(../../images/background.jpg) no-repeat center top;
+}
+
+.footable img {
+    width: 150px;
+}
